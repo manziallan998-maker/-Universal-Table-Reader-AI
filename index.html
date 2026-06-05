@@ -2,286 +2,167 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>Universal Table Reader AI Pro - Enterprise Multi-Format Data Integration Platform</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Universal AI File Intelligence Engine</title>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lucide/latest/umd/lucide.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/papaparse/5.4.1/papaparse.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/js-yaml/4.1.0/js-yaml.min.js"></script>
     <style>
+        :root {
+            --primary: #0f172a;
+            --secondary: #1e293b;
+            --accent: #3b82f6;
+            --accent-light: #60a5fa;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --error: #ef4444;
+            --text: #f1f5f9;
+            --text-muted: #cbd5e1;
+            --border: #334155;
+            --bg-hover: #1e293b;
+        }
+
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
 
-        :root {
-            --primary: #3b82f6;
-            --primary-dark: #2563eb;
-            --secondary: #10b981;
-            --danger: #ef4444;
-            --warning: #f59e0b;
-            --dark: #1f2937;
-            --gray: #6b7280;
-            --light: #f3f4f6;
-            --border: #e5e7eb;
-        }
-
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--primary) 0%, #0f172a 100%);
+            color: var(--text);
             min-height: 100vh;
-            padding: 20px;
         }
 
-        .container {
-            max-width: 1600px;
-            margin: 0 auto;
+        /* Smooth Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
-        /* Header */
-        .header {
-            background: white;
-            border-radius: 16px;
-            padding: 24px;
-            margin-bottom: 24px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
         }
 
-        h1 {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            font-size: 32px;
-            margin-bottom: 8px;
+        @keyframes pulse-glow {
+            0%, 100% {
+                box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
+            }
+            50% {
+                box-shadow: 0 0 40px rgba(59, 130, 246, 0.6);
+            }
         }
 
-        .badge-pro {
-            display: inline-block;
-            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-            color: white;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: bold;
-            margin-left: 12px;
-            vertical-align: middle;
+        .animate-fade-in-up {
+            animation: fadeInUp 0.6s ease-out;
         }
 
-        /* Upload Section */
-        .upload-section {
-            background: white;
-            border-radius: 16px;
-            padding: 32px;
-            margin-bottom: 24px;
+        .animate-slide-in {
+            animation: slideIn 0.5s ease-out;
         }
 
-        .upload-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 24px;
+        /* Scrollbar Styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
         }
 
-        .upload-area {
-            border: 2px dashed var(--border);
-            border-radius: 12px;
-            padding: 40px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s;
-            background: var(--light);
+        ::-webkit-scrollbar-track {
+            background: var(--primary);
         }
 
-        .upload-area:hover, .upload-area.drag-over {
-            border-color: var(--primary);
-            background: #eff6ff;
+        ::-webkit-scrollbar-thumb {
+            background: var(--accent);
+            border-radius: 4px;
         }
 
-        .upload-icon {
-            font-size: 48px;
-            margin-bottom: 16px;
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--accent-light);
         }
 
-        .supported-formats {
-            font-size: 12px;
-            color: var(--gray);
-            margin-top: 12px;
+        /* Glass Effect */
+        .glass {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(59, 130, 246, 0.2);
         }
 
-        /* Control Panel */
-        .control-panel {
-            background: white;
-            border-radius: 16px;
-            padding: 20px;
-            margin-bottom: 24px;
-            display: flex;
-            gap: 16px;
-            flex-wrap: wrap;
-            align-items: center;
+        /* Custom Input Styling */
+        input, textarea, select {
+            background: rgba(15, 23, 42, 0.8);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            transition: all 0.3s ease;
         }
 
-        .btn {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: all 0.2s;
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+        }
+
+        /* Button Styling */
+        button {
+            transition: all 0.3s ease;
         }
 
         .btn-primary {
-            background: var(--primary);
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-light) 100%);
             color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-weight: 600;
         }
 
         .btn-primary:hover {
-            background: var(--primary-dark);
-            transform: translateY(-1px);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(59, 130, 246, 0.4);
         }
 
         .btn-secondary {
             background: var(--secondary);
-            color: white;
-        }
-
-        .btn-danger {
-            background: var(--danger);
-            color: white;
-        }
-
-        .btn-warning {
-            background: var(--warning);
-            color: white;
-        }
-
-        /* Stats Cards */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 16px;
-            margin-bottom: 24px;
-        }
-
-        .stat-card {
-            background: white;
-            border-radius: 12px;
-            padding: 20px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        }
-
-        .stat-label {
-            font-size: 12px;
-            color: var(--gray);
-            text-transform: uppercase;
-            margin-bottom: 8px;
-        }
-
-        .stat-value {
-            font-size: 28px;
-            font-weight: bold;
-            color: var(--dark);
-        }
-
-        /* Table Container */
-        .table-container {
-            background: white;
-            border-radius: 16px;
-            padding: 20px;
-            overflow-x: auto;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
-        }
-
-        .toolbar {
-            display: flex;
-            gap: 12px;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-        }
-
-        .search-input {
-            flex: 1;
-            padding: 10px 16px;
+            color: var(--text);
             border: 1px solid var(--border);
-            border-radius: 8px;
-            font-size: 14px;
-        }
-
-        .select-input {
-            padding: 10px 16px;
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            background: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
             cursor: pointer;
+            transition: all 0.3s ease;
         }
 
-        /* Virtual Table */
-        .table-wrapper {
-            position: relative;
-            overflow: auto;
-            max-height: 500px;
-            border: 1px solid var(--border);
-            border-radius: 8px;
+        .btn-secondary:hover {
+            background: var(--bg-hover);
+            border-color: var(--accent);
         }
 
-        .data-table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 13px;
-        }
-
-        .data-table th {
-            background: var(--light);
-            padding: 12px;
-            text-align: left;
-            font-weight: 600;
-            position: sticky;
-            top: 0;
-            z-index: 10;
-            border-bottom: 2px solid var(--border);
-            cursor: pointer;
-            user-select: none;
-        }
-
-        .data-table th:hover {
-            background: #e5e7eb;
-        }
-
-        .data-table td {
-            padding: 10px 12px;
-            border-bottom: 1px solid var(--border);
-        }
-
-        .data-table tr:hover {
-            background: #f9fafb;
-        }
-
-        /* Pagination */
-        .pagination {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-top: 20px;
-            flex-wrap: wrap;
-            gap: 16px;
-        }
-
-        /* Loading Overlay */
-        .loading-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0,0,0,0.8);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-            flex-direction: column;
-            gap: 20px;
-        }
-
+        /* Loading Animation */
         .spinner {
-            width: 50px;
-            height: 50px;
-            border: 3px solid rgba(255,255,255,0.3);
-            border-top-color: white;
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(59, 130, 246, 0.3);
+            border-top-color: var(--accent);
             border-radius: 50%;
             animation: spin 1s linear infinite;
         }
@@ -290,831 +171,1107 @@
             to { transform: rotate(360deg); }
         }
 
-        /* File List */
-        .file-list {
-            background: white;
-            border-radius: 12px;
-            padding: 16px;
-            margin-bottom: 24px;
+        /* Card Styling */
+        .card {
+            background: rgba(30, 41, 59, 0.5);
+            border: 1px solid var(--border);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
         }
 
-        .file-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 12px;
+        .card:hover {
+            border-color: var(--accent);
+            background: rgba(30, 41, 59, 0.8);
+        }
+
+        /* Table Styling */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            background: rgba(15, 23, 42, 0.8);
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+            border-bottom: 2px solid var(--border);
+            color: var(--accent-light);
+        }
+
+        td {
+            padding: 0.75rem 1rem;
             border-bottom: 1px solid var(--border);
         }
 
-        .file-item:last-child {
-            border-bottom: none;
+        tr:hover {
+            background: rgba(59, 130, 246, 0.1);
         }
 
-        .file-name {
-            font-weight: 500;
+        /* Status Badges */
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.875rem;
+            font-weight: 600;
         }
 
-        .file-stats {
-            font-size: 12px;
-            color: var(--gray);
+        .badge-success {
+            background: rgba(16, 185, 129, 0.2);
+            color: var(--success);
         }
 
-        /* Responsive */
-        @media (max-width: 768px) {
-            .upload-grid {
-                grid-template-columns: 1fr;
-            }
-            .stats-grid {
-                grid-template-columns: 1fr 1fr;
-            }
+        .badge-warning {
+            background: rgba(245, 158, 11, 0.2);
+            color: var(--warning);
+        }
+
+        .badge-error {
+            background: rgba(239, 68, 68, 0.2);
+            color: var(--error);
+        }
+
+        .badge-info {
+            background: rgba(59, 130, 246, 0.2);
+            color: var(--accent-light);
+        }
+
+        /* Gradient Text */
+        .gradient-text {
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-light) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            backdrop-filter: blur(4px);
+        }
+
+        .modal {
+            background: var(--secondary);
+            border: 1px solid var(--border);
+            border-radius: 1rem;
+            max-width: 600px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: fadeInUp 0.3s ease-out;
+        }
+
+        /* Code Block */
+        .code-block {
+            background: rgba(15, 23, 42, 0.9);
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            padding: 1rem;
+            font-family: 'Courier New', monospace;
+            font-size: 0.875rem;
+            overflow-x: auto;
+            color: var(--accent-light);
         }
 
         /* Progress Bar */
         .progress-bar {
             width: 100%;
-            height: 4px;
-            background: var(--border);
-            border-radius: 2px;
+            height: 8px;
+            background: rgba(59, 130, 246, 0.2);
+            border-radius: 4px;
             overflow: hidden;
-            margin-top: 16px;
+            margin: 1rem 0;
         }
 
         .progress-fill {
             height: 100%;
-            background: linear-gradient(90deg, var(--primary), var(--secondary));
-            transition: width 0.3s;
+            background: linear-gradient(90deg, var(--accent) 0%, var(--accent-light) 100%);
+            transition: width 0.3s ease;
+            border-radius: 4px;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>Universal Table Reader AI Pro <span class="badge-pro">ENTERPRISE</span></h1>
-            <p>Multi-format data integration | Smart merging | Unlimited rows | Production-ready</p>
-        </div>
-
-        <div id="app"></div>
-    </div>
+    <div id="root"></div>
 
     <script>
-        // Advanced File Parser - Supports ALL formats
-        class UniversalFileParser {
-            static async parseFile(file, onProgress) {
-                return new Promise((resolve, reject) => {
-                    const extension = file.name.split('.').pop().toLowerCase();
-                    const reader = new FileReader();
+        // ============================================
+        // UNIVERSAL AI FILE INTELLIGENCE ENGINE
+        // Core AI Detection & Parsing Pipeline
+        // ============================================
 
-                    reader.onload = async (e) => {
-                        try {
-                            let data = [];
-                            let headers = [];
-                            
-                            // Excel/Spreadsheet formats (using SheetJS-like parsing)
-                            if (['xlsx', 'xls', 'xlsm', 'xlsb', 'ods', 'numbers'].includes(extension)) {
-                                const result = await this.parseExcel(e.target.result, extension);
-                                data = result.data;
-                                headers = result.headers;
-                            }
-                            // CSV and delimited formats
-                            else if (['csv', 'tsv', 'txt', 'psv'].includes(extension)) {
-                                const delimiter = this.detectDelimiter(e.target.result, extension);
-                                const result = this.parseDelimited(e.target.result, delimiter);
-                                data = result.data;
-                                headers = result.headers;
-                            }
-                            // JSON formats
-                            else if (['json', 'geojson'].includes(extension)) {
-                                const result = this.parseJSON(e.target.result);
-                                data = result.data;
-                                headers = result.headers;
-                            }
-                            // XML format
-                            else if (['xml', 'xhtml'].includes(extension)) {
-                                const result = this.parseXML(e.target.result);
-                                data = result.data;
-                                headers = result.headers;
-                            }
-                            // HTML Table
-                            else if (extension === 'html' || extension === 'htm') {
-                                const result = this.parseHTML(e.target.result);
-                                data = result.data;
-                                headers = result.headers;
-                            }
-                            // Markdown Table
-                            else if (extension === 'md' || extension === 'markdown') {
-                                const result = this.parseMarkdown(e.target.result);
-                                data = result.data;
-                                headers = result.headers;
-                            }
-                            // Parquet (simulated - would need actual library)
-                            else if (extension === 'parquet') {
-                                throw new Error('Parquet files require backend processing. Use CSV/Excel format instead.');
-                            }
-                            else {
-                                // Try to auto-detect
-                                const result = this.autoDetect(e.target.result);
-                                data = result.data;
-                                headers = result.headers;
-                            }
+        class FileIntelligenceEngine {
+            constructor() {
+                this.parsers = new Map();
+                this.schemaInference = new SchemaInferenceEngine();
+                this.registerDefaultParsers();
+            }
 
-                            if (data.length === 0) {
-                                reject(new Error('No data rows found in file'));
-                                return;
-                            }
+            registerDefaultParsers() {
+                this.parsers.set('csv', new CSVParser());
+                this.parsers.set('json', new JSONParser());
+                this.parsers.set('xlsx', new ExcelParser());
+                this.parsers.set('xml', new XMLParser());
+                this.parsers.set('txt', new TextParser());
+            }
 
-                            resolve({ 
-                                data, 
-                                headers, 
-                                fileName: file.name, 
-                                fileSize: file.size,
-                                rowCount: data.length,
-                                colCount: headers.length
-                            });
-                        } catch (error) {
-                            reject(error);
-                        }
+            async detectFileType(file, content) {
+                const name = file.name.toLowerCase();
+                const ext = name.split('.').pop();
+
+                // Extension-based detection
+                if (this.parsers.has(ext)) {
+                    return { type: ext, confidence: 0.95 };
+                }
+
+                // Content-based detection (heuristic)
+                return this.detectByContent(content);
+            }
+
+            detectByContent(content) {
+                const text = typeof content === 'string' ? content : new TextDecoder().decode(content.slice(0, 1000));
+
+                // JSON detection
+                if (text.trim().startsWith('{') || text.trim().startsWith('[')) {
+                    try {
+                        JSON.parse(text);
+                        return { type: 'json', confidence: 0.98 };
+                    } catch (e) { }
+                }
+
+                // XML detection
+                if (text.trim().startsWith('<')) {
+                    return { type: 'xml', confidence: 0.95 };
+                }
+
+                // CSV detection
+                if (text.includes(',') || text.includes('\t')) {
+                    const lines = text.split('\n').slice(0, 5);
+                    const consistentCols = lines.every((line, i) => {
+                        if (i === 0) return true;
+                        return line.split(',').length === lines[0].split(',').length;
+                    });
+                    if (consistentCols) {
+                        return { type: 'csv', confidence: 0.85 };
+                    }
+                }
+
+                return { type: 'txt', confidence: 0.5 };
+            }
+
+            async parseFile(file) {
+                try {
+                    const arrayBuffer = await file.arrayBuffer();
+                    const detection = await this.detectFileType(file, arrayBuffer);
+                    const parser = this.parsers.get(detection.type);
+
+                    if (!parser) {
+                        throw new Error(`No parser found for type: ${detection.type}`);
+                    }
+
+                    const parsed = await parser.parse(arrayBuffer, file);
+                    
+                    // Infer schema
+                    const schema = this.schemaInference.infer(parsed.records);
+
+                    return {
+                        fileInfo: {
+                            name: file.name,
+                            size: file.size,
+                            type: file.type,
+                            detectedType: detection.type,
+                            confidence: detection.confidence,
+                            uploadedAt: new Date().toISOString(),
+                        },
+                        records: parsed.records,
+                        schema: schema,
+                        rowCount: parsed.records.length,
+                        columnCount: schema.fields.length,
+                        dataQuality: this.analyzeQuality(parsed.records, schema),
                     };
-
-                    reader.onerror = () => reject(new Error('Failed to read file'));
-
-                    // Read based on format
-                    if (['xlsx', 'xls', 'xlsm', 'xlsb', 'ods', 'numbers'].includes(extension)) {
-                        reader.readAsArrayBuffer(file);
-                    } else {
-                        reader.readAsText(file, 'UTF-8');
-                    }
-                });
-            }
-
-            static detectDelimiter(content, extension) {
-                if (extension === 'tsv') return '\t';
-                if (extension === 'psv') return '|';
-                
-                const firstLine = content.split(/\r?\n/)[0];
-                const delimiters = [',', ';', '\t', '|', ':'];
-                let maxCount = 0;
-                let bestDelimiter = ',';
-                
-                for (const delim of delimiters) {
-                    const count = (firstLine.match(new RegExp(`\\${delim}`, 'g')) || []).length;
-                    if (count > maxCount) {
-                        maxCount = count;
-                        bestDelimiter = delim;
-                    }
+                } catch (error) {
+                    throw new Error(`Failed to parse file: ${error.message}`);
                 }
-                return bestDelimiter;
             }
 
-            static parseDelimited(content, delimiter) {
-                const lines = content.split(/\r?\n/).filter(line => line.trim());
-                if (lines.length === 0) return { data: [], headers: [] };
-                
-                // Parse with quote handling
-                const parseRow = (row) => {
-                    const result = [];
-                    let inQuotes = false;
-                    let current = '';
-                    
-                    for (let i = 0; i < row.length; i++) {
-                        const char = row[i];
-                        if (char === '"') {
-                            inQuotes = !inQuotes;
-                        } else if (char === delimiter && !inQuotes) {
-                            result.push(current.trim());
-                            current = '';
-                        } else {
-                            current += char;
-                        }
-                    }
-                    result.push(current.trim());
-                    return result.map(v => v.replace(/^"|"$/g, ''));
+            analyzeQuality(records, schema) {
+                const quality = {
+                    completeness: 0,
+                    consistency: 0,
+                    anomalies: [],
+                    missingFields: {},
+                    duplicates: 0,
                 };
-                
-                const headers = parseRow(lines[0]);
-                const data = [];
-                
-                for (let i = 1; i < lines.length; i++) {
-                    const row = parseRow(lines[i]);
-                    if (row.length === headers.length) {
-                        data.push(row);
-                    } else if (row.length > 0) {
-                        // Pad or truncate to match headers
-                        const padded = [...row];
-                        while (padded.length < headers.length) padded.push('');
-                        data.push(padded.slice(0, headers.length));
-                    }
-                }
-                
-                return { data, headers };
-            }
 
-            static parseExcel(arrayBuffer, extension) {
-                // Excel parsing simulation with comprehensive support
-                // In production, you'd use SheetJS or similar library
-                // This is a smart fallback that reads text content from binary
-                return new Promise((resolve) => {
-                    // For demo, create sample structure
-                    // In real implementation, use: const XLSX = require('xlsx');
-                    // const workbook = XLSX.read(arrayBuffer, { type: 'array' });
-                    // const sheet = workbook.Sheets[workbook.SheetNames[0]];
-                    // const data = XLSX.utils.sheet_to_json(sheet, { header: 1 });
-                    
-                    // Smart fallback - try to extract text from binary
-                    const text = new TextDecoder('utf-8').decode(arrayBuffer);
-                    const lines = text.split(/\r?\n/).filter(l => l.trim() && /[a-zA-Z0-9]/.test(l));
-                    
-                    if (lines.length > 0) {
-                        const firstLine = lines[0].split(/\s{2,}|\t|,/);
-                        const headers = firstLine.slice(0, 10);
-                        const data = lines.slice(1, 100).map(line => {
-                            const parts = line.split(/\s{2,}|\t|,/);
-                            return headers.map((_, idx) => parts[idx] || '');
+                if (records.length === 0) {
+                    return quality;
+                }
+
+                // Check completeness
+                let totalFields = 0;
+                let filledFields = 0;
+
+                records.forEach(record => {
+                    schema.fields.forEach(field => {
+                        totalFields++;
+                        const value = record[field.name];
+                        if (value !== null && value !== undefined && value !== '') {
+                            filledFields++;
+                        } else {
+                            quality.missingFields[field.name] = (quality.missingFields[field.name] || 0) + 1;
+                        }
+                    });
+                });
+
+                quality.completeness = Math.round((filledFields / totalFields) * 100);
+
+                // Check for duplicates
+                const serialized = records.map(r => JSON.stringify(r));
+                const unique = new Set(serialized);
+                quality.duplicates = records.length - unique.size;
+
+                // Anomaly detection
+                schema.fields.forEach(field => {
+                    const values = records.map(r => r[field.name]).filter(v => v != null);
+                    const typeViolations = values.filter(v => 
+                        !this.matchesType(v, field.inferredType)
+                    ).length;
+
+                    if (typeViolations > values.length * 0.1) {
+                        quality.anomalies.push({
+                            field: field.name,
+                            issue: 'Type inconsistency',
+                            count: typeViolations,
                         });
-                        resolve({ data, headers });
-                    } else {
-                        resolve({ data: [['Unable to parse Excel directly']], headers: ['Error'] });
                     }
                 });
+
+                quality.consistency = Math.round((1 - quality.anomalies.length / schema.fields.length) * 100);
+
+                return quality;
             }
 
-            static parseJSON(content) {
-                let json = JSON.parse(content);
-                
-                // Handle different JSON structures
-                if (Array.isArray(json)) {
-                    const headers = Object.keys(json[0] || {});
-                    const data = json.map(item => headers.map(h => item[h] !== undefined ? item[h] : ''));
-                    return { data, headers };
-                } else if (json.data && Array.isArray(json.data)) {
-                    const headers = Object.keys(json.data[0] || {});
-                    const data = json.data.map(item => headers.map(h => item[h] !== undefined ? item[h] : ''));
-                    return { data, headers };
-                } else {
-                    const headers = Object.keys(json);
-                    const data = [headers.map(h => json[h])];
-                    return { data, headers };
+            matchesType(value, type) {
+                switch (type) {
+                    case 'number':
+                        return !isNaN(parseFloat(value));
+                    case 'boolean':
+                        return value === true || value === false || value === 'true' || value === 'false';
+                    case 'date':
+                        return !isNaN(Date.parse(value));
+                    case 'string':
+                        return typeof value === 'string';
+                    default:
+                        return true;
                 }
             }
+        }
 
-            static parseXML(content) {
+        // Schema Inference Engine
+        class SchemaInferenceEngine {
+            infer(records) {
+                if (records.length === 0) {
+                    return { fields: [], confidence: 0 };
+                }
+
+                const fieldMap = new Map();
+                const fieldNames = new Set();
+
+                // Collect all field names
+                records.forEach(record => {
+                    Object.keys(record).forEach(key => {
+                        fieldNames.add(key);
+                        if (!fieldMap.has(key)) {
+                            fieldMap.set(key, {
+                                name: key,
+                                types: new Set(),
+                                samples: [],
+                                nullCount: 0,
+                            });
+                        }
+
+                        const field = fieldMap.get(key);
+                        const value = record[key];
+
+                        if (value === null || value === undefined || value === '') {
+                            field.nullCount++;
+                        } else {
+                            const type = this.inferType(value);
+                            field.types.add(type);
+                            if (field.samples.length < 3) {
+                                field.samples.push(value);
+                            }
+                        }
+                    });
+                });
+
+                const fields = Array.from(fieldMap.values()).map(field => {
+                    const uniqueTypes = Array.from(field.types);
+                    const inferredType = uniqueTypes.length === 1 ? uniqueTypes[0] : 'mixed';
+                    const confidence = 1 - (field.nullCount / records.length);
+
+                    return {
+                        name: field.name,
+                        inferredType: inferredType,
+                        possibleTypes: uniqueTypes,
+                        confidence: Math.round(confidence * 100),
+                        nullCount: field.nullCount,
+                        cardinality: new Set(
+                            records
+                                .map(r => r[field.name])
+                                .filter(v => v != null)
+                        ).size,
+                        samples: field.samples,
+                    };
+                });
+
+                return {
+                    fields: fields,
+                    fieldCount: fields.length,
+                    confidence: Math.round(
+                        fields.reduce((sum, f) => sum + f.confidence, 0) / fields.length
+                    ),
+                };
+            }
+
+            inferType(value) {
+                if (value === null || value === undefined) return 'null';
+                if (typeof value === 'boolean') return 'boolean';
+                if (typeof value === 'number') return 'number';
+                if (!isNaN(Date.parse(value)) && typeof value === 'string') return 'date';
+                if (typeof value === 'string') {
+                    if (!isNaN(parseFloat(value))) return 'number';
+                    return 'string';
+                }
+                if (Array.isArray(value)) return 'array';
+                if (typeof value === 'object') return 'object';
+                return 'unknown';
+            }
+        }
+
+        // ============================================
+        // FILE PARSERS
+        // ============================================
+
+        class CSVParser {
+            async parse(arrayBuffer, file) {
+                const text = new TextDecoder().decode(arrayBuffer);
+                return new Promise((resolve, reject) => {
+                    Papa.parse(text, {
+                        header: true,
+                        skipEmptyLines: true,
+                        dynamicTyping: true,
+                        complete: (results) => {
+                            resolve({
+                                records: results.data.filter(r => Object.keys(r).some(k => r[k] != null)),
+                            });
+                        },
+                        error: reject,
+                    });
+                });
+            }
+        }
+
+        class JSONParser {
+            async parse(arrayBuffer) {
+                const text = new TextDecoder().decode(arrayBuffer);
+                const data = JSON.parse(text);
+
+                let records = [];
+                if (Array.isArray(data)) {
+                    records = data;
+                } else if (typeof data === 'object') {
+                    records = [data];
+                }
+
+                return { records };
+            }
+        }
+
+        class ExcelParser {
+            async parse(arrayBuffer) {
+                const workbook = XLSX.read(arrayBuffer, { type: 'array' });
+                const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+                const records = XLSX.utils.sheet_to_json(worksheet);
+                return { records };
+            }
+        }
+
+        class XMLParser {
+            async parse(arrayBuffer) {
+                const text = new TextDecoder().decode(arrayBuffer);
                 const parser = new DOMParser();
-                const xmlDoc = parser.parseFromString(content, 'text/xml');
-                const rows = xmlDoc.getElementsByTagName('row');
+                const doc = parser.parseFromString(text, 'application/xml');
+
                 const records = [];
-                
-                if (rows.length > 0) {
-                    const firstRow = rows[0];
-                    const headers = Array.from(firstRow.children).map(child => child.tagName);
-                    
-                    for (let i = 0; i < rows.length; i++) {
-                        const row = rows[i];
-                        const record = headers.map(h => {
-                            const elem = row.getElementsByTagName(h)[0];
-                            return elem ? elem.textContent : '';
-                        });
+                const items = doc.documentElement.querySelectorAll('*');
+
+                items.forEach(item => {
+                    const record = {};
+                    item.attributes && Array.from(item.attributes).forEach(attr => {
+                        record[attr.name] = attr.value;
+                    });
+                    if (item.textContent && item.textContent.trim()) {
+                        record['content'] = item.textContent.trim();
+                    }
+                    if (Object.keys(record).length > 0) {
                         records.push(record);
                     }
-                    return { data: records, headers };
-                }
-                
-                // Fallback for any XML structure
-                const allElements = xmlDoc.getElementsByTagName('*');
-                const uniqueTags = new Set();
-                for (let elem of allElements) {
-                    if (elem.children.length === 0 && elem.textContent.trim()) {
-                        uniqueTags.add(elem.tagName);
-                    }
-                }
-                const headers = Array.from(uniqueTags);
-                const data = [];
-                const elementMap = new Map();
-                
-                for (let elem of allElements) {
-                    if (elem.children.length === 0 && elem.textContent.trim()) {
-                        elementMap.set(elem.tagName, elem.textContent);
-                    }
-                    if (elementMap.size === headers.length) {
-                        data.push(headers.map(h => elementMap.get(h) || ''));
-                        elementMap.clear();
-                    }
-                }
-                
-                return { data, headers };
-            }
+                });
 
-            static parseHTML(content) {
-                const parser = new DOMParser();
-                const doc = parser.parseFromString(content, 'text/html');
-                const tables = doc.getElementsByTagName('table');
-                
-                if (tables.length === 0) {
-                    throw new Error('No HTML tables found');
-                }
-                
-                const table = tables[0];
-                const headers = [];
-                const data = [];
-                
-                // Get headers
-                const headerRows = table.getElementsByTagName('th');
-                if (headerRows.length > 0) {
-                    for (let th of headerRows) {
-                        headers.push(th.textContent.trim());
-                    }
-                } else {
-                    const firstRow = table.getElementsByTagName('tr')[0];
-                    const firstRowCells = firstRow.getElementsByTagName('td');
-                    for (let td of firstRowCells) {
-                        headers.push(td.textContent.trim());
-                    }
-                }
-                
-                // Get data
-                const rows = table.getElementsByTagName('tr');
-                for (let i = (headers.length > 0 ? 1 : 0); i < rows.length; i++) {
-                    const cells = rows[i].getElementsByTagName('td');
-                    if (cells.length === headers.length) {
-                        const row = Array.from(cells).map(cell => cell.textContent.trim());
-                        data.push(row);
-                    }
-                }
-                
-                return { data, headers };
-            }
-
-            static parseMarkdown(content) {
-                const lines = content.split(/\r?\n/);
-                const tableLines = lines.filter(line => line.includes('|'));
-                
-                if (tableLines.length < 2) {
-                    throw new Error('No markdown table found');
-                }
-                
-                const headers = tableLines[0].split('|').filter(cell => cell.trim()).map(cell => cell.trim());
-                const data = [];
-                
-                for (let i = 2; i < tableLines.length; i++) {
-                    const cells = tableLines[i].split('|').filter(cell => cell.trim());
-                    if (cells.length === headers.length) {
-                        data.push(cells.map(cell => cell.trim()));
-                    }
-                }
-                
-                return { data, headers };
-            }
-
-            static autoDetect(content) {
-                // Try to detect format automatically
-                if (content.includes('<?xml') || content.includes('<root')) {
-                    return this.parseXML(content);
-                }
-                if (content.includes('|') && content.split('\n')[0].split('|').length > 3) {
-                    return this.parseDelimited(content, '|');
-                }
-                if (content.includes('\t') && content.split('\n')[0].split('\t').length > 2) {
-                    return this.parseDelimited(content, '\t');
-                }
-                return this.parseDelimited(content, ',');
+                return { records };
             }
         }
 
-        // Data Warehouse - Manages multiple datasets
-        class DataWarehouse {
-            constructor() {
-                this.datasets = [];
-                this.masterDataset = {
-                    data: [],
-                    headers: [],
-                    sourceFiles: []
-                };
-            }
-
-            addDataset(dataset) {
-                this.datasets.push(dataset);
-                this.mergeDataset(dataset);
-            }
-
-            mergeDataset(newDataset) {
-                if (this.masterDataset.headers.length === 0) {
-                    // First dataset
-                    this.masterDataset.headers = [...newDataset.headers];
-                    this.masterDataset.data = [...newDataset.data];
-                    this.masterDataset.sourceFiles.push(newDataset.fileName);
-                } else {
-                    // Merge - align columns
-                    const columnMap = new Map();
-                    this.masterDataset.headers.forEach((header, idx) => {
-                        columnMap.set(header.toLowerCase(), idx);
-                    });
-                    
-                    // Add new columns
-                    newDataset.headers.forEach(header => {
-                        if (!columnMap.has(header.toLowerCase())) {
-                            const newIdx = this.masterDataset.headers.length;
-                            columnMap.set(header.toLowerCase(), newIdx);
-                            this.masterDataset.headers.push(header);
-                            // Add empty values to existing rows
-                            this.masterDataset.data.forEach(row => {
-                                row.push('');
-                            });
-                        }
-                    });
-                    
-                    // Add new data with proper column alignment
-                    newDataset.data.forEach(newRow => {
-                        const alignedRow = new Array(this.masterDataset.headers.length).fill('');
-                        newDataset.headers.forEach((header, idx) => {
-                            const masterIdx = columnMap.get(header.toLowerCase());
-                            if (masterIdx !== undefined) {
-                                alignedRow[masterIdx] = newRow[idx];
-                            }
-                        });
-                        this.masterDataset.data.push(alignedRow);
-                    });
-                    
-                    this.masterDataset.sourceFiles.push(newDataset.fileName);
-                }
-            }
-
-            clear() {
-                this.datasets = [];
-                this.masterDataset = {
-                    data: [],
-                    headers: [],
-                    sourceFiles: []
-                };
-            }
-
-            getStats() {
-                return {
-                    totalRows: this.masterDataset.data.length,
-                    totalColumns: this.masterDataset.headers.length,
-                    totalFiles: this.datasets.length,
-                    sourceFiles: this.masterDataset.sourceFiles
-                };
+        class TextParser {
+            async parse(arrayBuffer) {
+                const text = new TextDecoder().decode(arrayBuffer);
+                const lines = text.split('\n').filter(l => l.trim());
+                const records = lines.map((line, idx) => ({
+                    'line_number': idx + 1,
+                    'content': line,
+                }));
+                return { records };
             }
         }
 
-        // Main Application
-        class UniversalTableReaderApp {
-            constructor() {
-                this.warehouse = new DataWarehouse();
-                this.currentPage = 1;
-                this.pageSize = 50;
-                this.searchTerm = '';
-                this.sortColumn = null;
-                this.sortDirection = 'asc';
-                this.filters = {};
-                this.processing = false;
-                this.init();
-            }
+        // ============================================
+        // REACT COMPONENTS & APP
+        // ============================================
 
-            init() {
-                this.render();
-                this.attachGlobalEvents();
-            }
+        const { useState, useCallback, useEffect, useRef } = React;
+        const { Upload, BarChart3, Database, AlertCircle, CheckCircle, Eye, Download, Trash2, Code, Filter, Search } = lucide;
 
-            async addFile(file) {
-                if (!file) return;
-                
-                this.processing = true;
-                this.render();
-                
+        const engine = new FileIntelligenceEngine();
+
+        function DataQualityBadge({ data }) {
+            const getColor = (value) => {
+                if (value >= 90) return 'badge-success';
+                if (value >= 70) return 'badge-warning';
+                return 'badge-error';
+            };
+
+            return (
+                <div className="grid grid-cols-3 gap-3">
+                    <div className="card text-center">
+                        <div className="text-2xl font-bold gradient-text">{data.completeness}%</div>
+                        <div className="text-xs text-gray-400 mt-1">Completeness</div>
+                    </div>
+                    <div className="card text-center">
+                        <div className="text-2xl font-bold gradient-text">{data.consistency}%</div>
+                        <div className="text-xs text-gray-400 mt-1">Consistency</div>
+                    </div>
+                    <div className="card text-center">
+                        <div className="text-2xl font-bold gradient-text">{data.duplicates}</div>
+                        <div className="text-xs text-gray-400 mt-1">Duplicates</div>
+                    </div>
+                </div>
+            );
+        }
+
+        function SchemaViewer({ schema }) {
+            const [expandedFields, setExpandedFields] = useState({});
+
+            const toggleField = (fieldName) => {
+                setExpandedFields(prev => ({
+                    ...prev,
+                    [fieldName]: !prev[fieldName],
+                }));
+            };
+
+            return (
+                <div className="space-y-3">
+                    {schema.fields.map((field, idx) => (
+                        <div key={idx} className="card">
+                            <div 
+                                className="flex items-center justify-between cursor-pointer"
+                                onClick={() => toggleField(field.name)}
+                            >
+                                <div className="flex items-center gap-3 flex-1">
+                                    <Database size={18} className="text-accent-light" />
+                                    <div className="flex-1">
+                                        <div className="font-semibold">{field.name}</div>
+                                        <div className="text-sm text-gray-400">
+                                            {field.inferredType} • {field.cardinality} unique values
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <span className={`badge badge-info`}>
+                                        {field.confidence}% confidence
+                                    </span>
+                                </div>
+                            </div>
+                            
+                            {expandedFields[field.name] && (
+                                <div className="mt-3 pt-3 border-t border-gray-700 text-sm text-gray-400">
+                                    <div className="mb-2">
+                                        <strong>Type:</strong> {field.possibleTypes.join(', ')}
+                                    </div>
+                                    <div className="mb-2">
+                                        <strong>Null Values:</strong> {field.nullCount}
+                                    </div>
+                                    <div>
+                                        <strong>Samples:</strong>
+                                        <div className="code-block mt-2">
+                                            {field.samples.map((s, i) => (
+                                                <div key={i}>{JSON.stringify(s)}</div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    ))}
+                </div>
+            );
+        }
+
+        function DataTableViewer({ records, schema }) {
+            const [pageSize, setPageSize] = useState(10);
+            const [page, setPage] = useState(0);
+            const [searchTerm, setSearchTerm] = useState('');
+            const [sortField, setSortField] = useState(null);
+            const [sortOrder, setSortOrder] = useState('asc');
+
+            const filteredRecords = records.filter(record =>
+                Object.values(record).some(v =>
+                    String(v).toLowerCase().includes(searchTerm.toLowerCase())
+                )
+            );
+
+            const sortedRecords = sortField
+                ? [...filteredRecords].sort((a, b) => {
+                    const aVal = a[sortField];
+                    const bVal = b[sortField];
+                    if (aVal < bVal) return sortOrder === 'asc' ? -1 : 1;
+                    if (aVal > bVal) return sortOrder === 'asc' ? 1 : -1;
+                    return 0;
+                })
+                : filteredRecords;
+
+            const paginatedRecords = sortedRecords.slice(page * pageSize, (page + 1) * pageSize);
+            const totalPages = Math.ceil(sortedRecords.length / pageSize);
+
+            const handleSort = (field) => {
+                if (sortField === field) {
+                    setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+                } else {
+                    setSortField(field);
+                    setSortOrder('asc');
+                }
+            };
+
+            return (
+                <div className="space-y-4">
+                    <div className="flex gap-2 mb-4">
+                        <div className="flex-1 relative">
+                            <Search size={18} className="absolute left-3 top-3 text-gray-500" />
+                            <input
+                                type="text"
+                                placeholder="Search records..."
+                                className="w-full pl-10"
+                                value={searchTerm}
+                                onChange={(e) => {
+                                    setSearchTerm(e.target.value);
+                                    setPage(0);
+                                }}
+                            />
+                        </div>
+                        <select
+                            value={pageSize}
+                            onChange={(e) => {
+                                setPageSize(parseInt(e.target.value));
+                                setPage(0);
+                            }}
+                            className="px-3"
+                        >
+                            <option value={10}>10 rows</option>
+                            <option value={25}>25 rows</option>
+                            <option value={50}>50 rows</option>
+                            <option value={100}>100 rows</option>
+                        </select>
+                    </div>
+
+                    <div className="overflow-x-auto glass rounded-lg">
+                        <table>
+                            <thead>
+                                <tr>
+                                    {schema.fields.map(field => (
+                                        <th 
+                                            key={field.name}
+                                            onClick={() => handleSort(field.name)}
+                                            className="cursor-pointer hover:bg-blue-900/20"
+                                        >
+                                            <div className="flex items-center gap-2">
+                                                {field.name}
+                                                {sortField === field.name && (
+                                                    <span className="text-xs">
+                                                        {sortOrder === 'asc' ? '↑' : '↓'}
+                                                    </span>
+                                                )}
+                                            </div>
+                                        </th>
+                                    ))}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {paginatedRecords.map((record, idx) => (
+                                    <tr key={idx}>
+                                        {schema.fields.map(field => (
+                                            <td key={`${idx}-${field.name}`}>
+                                                {record[field.name] === null || record[field.name] === undefined
+                                                    ? <span className="text-gray-500">—</span>
+                                                    : String(record[field.name]).substring(0, 50)}
+                                            </td>
+                                        ))}
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div className="flex justify-between items-center">
+                        <div className="text-sm text-gray-400">
+                            Showing {paginatedRecords.length > 0 ? page * pageSize + 1 : 0} to {Math.min((page + 1) * pageSize, sortedRecords.length)} of {sortedRecords.length} records
+                        </div>
+                        <div className="flex gap-2">
+                            <button
+                                className="btn-secondary"
+                                disabled={page === 0}
+                                onClick={() => setPage(Math.max(0, page - 1))}
+                            >
+                                Previous
+                            </button>
+                            <div className="px-4 flex items-center">
+                                Page {page + 1} of {totalPages}
+                            </div>
+                            <button
+                                className="btn-secondary"
+                                disabled={page >= totalPages - 1}
+                                onClick={() => setPage(Math.min(totalPages - 1, page + 1))}
+                            >
+                                Next
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        function FileUploadZone({ onFileSelected }) {
+            const [isDragging, setIsDragging] = useState(false);
+            const fileInputRef = useRef(null);
+
+            const handleDragOver = (e) => {
+                e.preventDefault();
+                setIsDragging(true);
+            };
+
+            const handleDragLeave = () => {
+                setIsDragging(false);
+            };
+
+            const handleDrop = (e) => {
+                e.preventDefault();
+                setIsDragging(false);
+                const files = e.dataTransfer.files;
+                if (files.length > 0) {
+                    onFileSelected(files[0]);
+                }
+            };
+
+            const handleFileInput = (e) => {
+                if (e.target.files.length > 0) {
+                    onFileSelected(e.target.files[0]);
+                }
+            };
+
+            return (
+                <div
+                    className={`border-2 border-dashed rounded-lg p-12 text-center cursor-pointer transition-all ${
+                        isDragging
+                            ? 'border-blue-400 bg-blue-900/20'
+                            : 'border-blue-600/30 bg-blue-900/5 hover:border-blue-500'
+                    }`}
+                    onDragOver={handleDragOver}
+                    onDragLeave={handleDragLeave}
+                    onDrop={handleDrop}
+                    onClick={() => fileInputRef.current?.click()}
+                >
+                    <input
+                        ref={fileInputRef}
+                        type="file"
+                        onChange={handleFileInput}
+                        className="hidden"
+                        accept=".csv,.json,.xlsx,.xls,.xml,.txt"
+                    />
+                    <Upload size={48} className="mx-auto mb-4 text-blue-400 opacity-70" />
+                    <h3 className="text-lg font-semibold mb-2">
+                        Drop your file here or click to select
+                    </h3>
+                    <p className="text-gray-400">
+                        Supports CSV, JSON, Excel, XML, and Text files
+                    </p>
+                    <p className="text-sm text-gray-500 mt-2">
+                        The AI will automatically detect and parse your data
+                    </p>
+                </div>
+            );
+        }
+
+        function AppHeader() {
+            return (
+                <div className="text-center mb-8 animate-fade-in-up">
+                    <h1 className="text-4xl font-bold mb-2">
+                        <span className="gradient-text">Universal AI File Intelligence</span>
+                    </h1>
+                    <p className="text-gray-400">
+                        Intelligent file parsing, schema inference, and data analysis for any format
+                    </p>
+                </div>
+            );
+        }
+
+        function AIStatsPanel({ data }) {
+            return (
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                    <div className="card text-center">
+                        <div className="text-3xl font-bold gradient-text">{data.rowCount}</div>
+                        <div className="text-sm text-gray-400 mt-1">Rows</div>
+                    </div>
+                    <div className="card text-center">
+                        <div className="text-3xl font-bold gradient-text">{data.columnCount}</div>
+                        <div className="text-sm text-gray-400 mt-1">Columns</div>
+                    </div>
+                    <div className="card text-center">
+                        <div className="text-3xl font-bold gradient-text">{data.schema.confidence}%</div>
+                        <div className="text-sm text-gray-400 mt-1">Schema Confidence</div>
+                    </div>
+                    <div className="card text-center">
+                        <div className={`text-sm font-semibold ${
+                            data.fileInfo.confidence >= 0.9 ? 'text-green-400' : 'text-yellow-400'
+                        }`}>
+                            {Math.round(data.fileInfo.confidence * 100)}% Type Confidence
+                        </div>
+                        <div className="text-sm text-gray-400 mt-1">{data.fileInfo.detectedType.toUpperCase()}</div>
+                    </div>
+                </div>
+            );
+        }
+
+        function App() {
+            const [fileData, setFileData] = useState(null);
+            const [loading, setLoading] = useState(false);
+            const [error, setError] = useState(null);
+            const [activeTab, setActiveTab] = useState('overview');
+
+            const handleFileSelected = useCallback(async (file) => {
+                setLoading(true);
+                setError(null);
+
                 try {
-                    const result = await UniversalFileParser.parseFile(file, (progress) => {
-                        this.updateProgress(progress);
-                    });
-                    
-                    this.warehouse.addDataset(result);
-                    this.currentPage = 1;
-                    this.showNotification(`✅ Successfully imported ${result.rowCount.toLocaleString()} rows from ${result.fileName}`, 'success');
-                } catch (error) {
-                    this.showNotification(`❌ Error: ${error.message}`, 'error');
-                } finally {
-                    this.processing = false;
-                    this.render();
+                    const result = await engine.parseFile(file);
+                    setFileData(result);
+                    setActiveTab('overview');
+                } catch (err) {
+                    setError(err.message);
                 }
-            }
 
-            getFilteredData() {
-                let data = [...this.warehouse.masterDataset.data];
-                
-                // Search
-                if (this.searchTerm) {
-                    const term = this.searchTerm.toLowerCase();
-                    data = data.filter(row => 
-                        row.some(cell => String(cell).toLowerCase().includes(term))
-                    );
-                }
-                
-                // Column filters
-                Object.entries(this.filters).forEach(([colIdx, filterValue]) => {
-                    if (filterValue) {
-                        data = data.filter(row => 
-                            String(row[parseInt(colIdx)]).toLowerCase().includes(filterValue.toLowerCase())
-                        );
-                    }
-                });
-                
-                // Sort
-                if (this.sortColumn !== null) {
-                    data.sort((a, b) => {
-                        let aVal = a[this.sortColumn] || '';
-                        let bVal = b[this.sortColumn] || '';
-                        
-                        if (!isNaN(aVal) && !isNaN(bVal)) {
-                            aVal = parseFloat(aVal);
-                            bVal = parseFloat(bVal);
-                        }
-                        
-                        if (aVal < bVal) return this.sortDirection === 'asc' ? -1 : 1;
-                        if (aVal > bVal) return this.sortDirection === 'asc' ? 1 : -1;
-                        return 0;
-                    });
-                }
-                
-                return data;
-            }
+                setLoading(false);
+            }, []);
 
-            getCurrentPageData() {
-                const filtered = this.getFilteredData();
-                const start = (this.currentPage - 1) * this.pageSize;
-                return filtered.slice(start, start + this.pageSize);
-            }
+            const exportAsJSON = () => {
+                if (!fileData) return;
+                const json = JSON.stringify(fileData, null, 2);
+                const blob = new Blob([json], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `${fileData.fileInfo.name}-extracted.json`;
+                a.click();
+            };
 
-            getTotalPages() {
-                const filtered = this.getFilteredData();
-                return Math.ceil(filtered.length / this.pageSize);
-            }
+            const exportAsCSV = () => {
+                if (!fileData) return;
+                const headers = fileData.schema.fields.map(f => f.name);
+                const rows = fileData.records.map(r =>
+                    headers.map(h => {
+                        const val = r[h];
+                        return typeof val === 'string' && val.includes(',')
+                            ? `"${val}"`
+                            : val;
+                    }).join(',')
+                );
+                const csv = [headers.join(','), ...rows].join('\n');
+                const blob = new Blob([csv], { type: 'text/csv' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `${fileData.fileInfo.name}-extracted.csv`;
+                a.click();
+            };
 
-            exportData(format) {
-                const data = this.warehouse.masterDataset.data;
-                const headers = this.warehouse.masterDataset.headers;
-                
-                if (format === 'csv') {
-                    let csv = headers.join(',') + '\n';
-                    csv += data.map(row => 
-                        row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(',')
-                    ).join('\n');
-                    
-                    this.downloadFile(csv, 'export.csv', 'text/csv');
-                } else if (format === 'json') {
-                    const jsonData = data.map(row => {
-                        const obj = {};
-                        headers.forEach((h, idx) => obj[h] = row[idx]);
-                        return obj;
-                    });
-                    this.downloadFile(JSON.stringify(jsonData, null, 2), 'export.json', 'application/json');
-                }
-            }
+            const clearData = () => {
+                setFileData(null);
+                setError(null);
+                setActiveTab('overview');
+            };
 
-            downloadFile(content, filename, mimeType) {
-                const blob = new Blob([content], { type: mimeType });
-                const link = document.createElement('a');
-                link.href = URL.createObjectURL(blob);
-                link.download = filename;
-                link.click();
-                URL.revokeObjectURL(link.href);
-            }
-
-            showNotification(message, type) {
-                const notification = document.createElement('div');
-                notification.style.cssText = `
-                    position: fixed;
-                    top: 20px;
-                    right: 20px;
-                    background: ${type === 'success' ? '#10b981' : '#ef4444'};
-                    color: white;
-                    padding: 12px 20px;
-                    border-radius: 8px;
-                    z-index: 2000;
-                    animation: slideIn 0.3s ease;
-                    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-                `;
-                notification.textContent = message;
-                document.body.appendChild(notification);
-                setTimeout(() => notification.remove(), 3000);
-            }
-
-            render() {
-                const appDiv = document.getElementById('app');
-                const stats = this.warehouse.getStats();
-                const filteredData = this.getFilteredData();
-                const currentData = this.getCurrentPageData();
-                const totalPages = this.getTotalPages();
-                
-                let html = `
-                    <div class="upload-section">
-                        <div class="upload-grid">
-                            <div class="upload-area" id="dropZone1">
-                                <div class="upload-icon">📁</div>
-                                <h3>Upload File</h3>
-                                <p>Drag & drop or click to upload</p>
-                                <button class="btn btn-primary" onclick="document.getElementById('fileInput1').click()">Select File</button>
-                                <input type="file" id="fileInput1" style="display:none" accept=".csv,.tsv,.txt,.json,.xml,.html,.md,.xlsx,.xls,.ods">
-                                <div class="supported-formats">
-                                    Supports: CSV, Excel, JSON, XML, HTML, Markdown, TSV, and 20+ formats
+            if (!fileData) {
+                return (
+                    <div className="min-h-screen p-6 md:p-12">
+                        <div className="max-w-6xl mx-auto">
+                            <AppHeader />
+                            <div className="card animate-fade-in-up" style={{animationDelay: '0.1s'}}>
+                                <FileUploadZone onFileSelected={handleFileSelected} />
+                            </div>
+                            {error && (
+                                <div className="mt-6 p-4 bg-red-900/20 border border-red-600 rounded-lg flex gap-3 animate-fade-in-up">
+                                    <AlertCircle size={20} className="text-red-400 flex-shrink-0" />
+                                    <div>
+                                        <h3 className="font-semibold text-red-400">Error</h3>
+                                        <p className="text-sm text-red-300 mt-1">{error}</p>
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="upload-area" id="dropZone2">
-                                <div class="upload-icon">🔄</div>
-                                <h3>Merge Additional File</h3>
-                                <p>Add another file to merge with existing data</p>
-                                <button class="btn btn-secondary" onclick="document.getElementById('fileInput2').click()">Merge File</button>
-                                <input type="file" id="fileInput2" style="display:none" accept=".csv,.tsv,.txt,.json,.xml,.html,.md,.xlsx,.xls,.ods">
-                            </div>
+                            )}
+                            {loading && (
+                                <div className="mt-6 flex items-center justify-center gap-3">
+                                    <div className="spinner"></div>
+                                    <span className="text-gray-400">Analyzing file...</span>
+                                </div>
+                            )}
                         </div>
                     </div>
-                    
-                    <div class="stats-grid">
-                        <div class="stat-card">
-                            <div class="stat-label">Total Rows</div>
-                            <div class="stat-value">${stats.totalRows.toLocaleString()}</div>
+                );
+            }
+
+            return (
+                <div className="min-h-screen p-6 md:p-8">
+                    <div className="max-w-7xl mx-auto">
+                        {/* Header with file info */}
+                        <div className="flex items-center justify-between mb-8 animate-fade-in-up">
+                            <div>
+                                <h1 className="text-3xl font-bold gradient-text mb-2">
+                                    {fileData.fileInfo.name}
+                                </h1>
+                                <div className="flex flex-wrap gap-3">
+                                    <span className="badge badge-info">
+                                        {fileData.fileInfo.detectedType.toUpperCase()} • {(fileData.fileInfo.size / 1024 / 1024).toFixed(2)} MB
+                                    </span>
+                                    <span className={`badge ${
+                                        fileData.fileInfo.confidence >= 0.9 ? 'badge-success' : 'badge-warning'
+                                    }`}>
+                                        {Math.round(fileData.fileInfo.confidence * 100)}% confidence
+                                    </span>
+                                </div>
+                            </div>
+                            <button
+                                onClick={clearData}
+                                className="btn-secondary flex items-center gap-2"
+                            >
+                                <Trash2 size={18} />
+                                Clear
+                            </button>
                         </div>
-                        <div class="stat-card">
-                            <div class="stat-label">Total Columns</div>
-                            <div class="stat-value">${stats.totalColumns}</div>
+
+                        {/* Stats Panel */}
+                        <AIStatsPanel data={fileData} />
+
+                        {/* Tab Navigation */}
+                        <div className="flex gap-2 mb-6 border-b border-gray-700 pb-4 overflow-x-auto">
+                            {[
+                                { id: 'overview', label: 'Overview', icon: BarChart3 },
+                                { id: 'schema', label: 'Schema', icon: Database },
+                                { id: 'data', label: 'Data Table', icon: Eye },
+                                { id: 'quality', label: 'Quality', icon: AlertCircle },
+                            ].map(tab => (
+                                <button
+                                    key={tab.id}
+                                    onClick={() => setActiveTab(tab.id)}
+                                    className={`flex items-center gap-2 px-4 py-2 rounded transition-all ${
+                                        activeTab === tab.id
+                                            ? 'bg-blue-600 text-white'
+                                            : 'text-gray-400 hover:text-gray-200'
+                                    }`}
+                                >
+                                    <tab.icon size={18} />
+                                    {tab.label}
+                                </button>
+                            ))}
                         </div>
-                        <div class="stat-card">
-                            <div class="stat-label">Files Imported</div>
-                            <div class="stat-value">${stats.totalFiles}</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-label">Filtered Rows</div>
-                            <div class="stat-value">${filteredData.length.toLocaleString()}</div>
+
+                        {/* Tab Content */}
+                        <div className="animate-fade-in-up">
+                            {activeTab === 'overview' && (
+                                <div className="space-y-6">
+                                    <div className="card">
+                                        <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
+                                            <CheckCircle size={24} className="text-green-400" />
+                                            File Analysis Summary
+                                        </h2>
+                                        <div className="grid md:grid-cols-2 gap-6">
+                                            <div>
+                                                <h3 className="font-semibold mb-3">File Information</h3>
+                                                <div className="space-y-2 text-sm">
+                                                    <div className="flex justify-between">
+                                                        <span className="text-gray-400">File Name:</span>
+                                                        <span className="font-mono">{fileData.fileInfo.name}</span>
+                                                    </div>
+                                                    <div className="flex justify-between">
+                                                        <span className="text-gray-400">Detected Type:</span>
+                                                        <span className="text-blue-400 font-semibold">
+                                                            {fileData.fileInfo.detectedType.toUpperCase()}
+                                                        </span>
+                                                    </div>
+                                                    <div className="flex justify-between">
+                                                        <span className="text-gray-400">File Size:</span>
+                                                        <span>{(fileData.fileInfo.size / 1024).toFixed(2)} KB</span>
+                                                    </div>
+                                                    <div className="flex justify-between">
+                                                        <span className="text-gray-400">Uploaded At:</span>
+                                                        <span className="font-mono text-xs">
+                                                            {new Date(fileData.fileInfo.uploadedAt).toLocaleString()}
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <h3 className="font-semibold mb-3">Data Statistics</h3>
+                                                <div className="space-y-2 text-sm">
+                                                    <div className="flex justify-between">
+                                                        <span className="text-gray-400">Total Rows:</span>
+                                                        <span className="text-blue-400 font-bold">{fileData.rowCount}</span>
+                                                    </div>
+                                                    <div className="flex justify-between">
+                                                        <span className="text-gray-400">Total Columns:</span>
+                                                        <span className="text-blue-400 font-bold">{fileData.columnCount}</span>
+                                                    </div>
+                                                    <div className="flex justify-between">
+                                                        <span className="text-gray-400">Schema Confidence:</span>
+                                                        <span className="text-green-400 font-bold">{fileData.schema.confidence}%</span>
+                                                    </div>
+                                                    <div className="flex justify-between">
+                                                        <span className="text-gray-400">Total Fields:</span>
+                                                        <span className="text-blue-400 font-bold">{fileData.schema.fields.length}</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="card">
+                                        <h2 className="text-xl font-bold mb-4">Export Data</h2>
+                                        <div className="flex gap-3">
+                                            <button
+                                                onClick={exportAsJSON}
+                                                className="btn-primary flex items-center gap-2"
+                                            >
+                                                <Code size={18} />
+                                                Export as JSON
+                                            </button>
+                                            <button
+                                                onClick={exportAsCSV}
+                                                className="btn-primary flex items-center gap-2"
+                                            >
+                                                <Download size={18} />
+                                                Export as CSV
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+
+                            {activeTab === 'schema' && (
+                                <div className="card">
+                                    <h2 className="text-xl font-bold mb-6">Inferred Schema</h2>
+                                    <SchemaViewer schema={fileData.schema} />
+                                </div>
+                            )}
+
+                            {activeTab === 'data' && (
+                                <div className="card">
+                                    <h2 className="text-xl font-bold mb-6">Data Preview</h2>
+                                    <DataTableViewer
+                                        records={fileData.records}
+                                        schema={fileData.schema}
+                                    />
+                                </div>
+                            )}
+
+                            {activeTab === 'quality' && (
+                                <div className="space-y-6">
+                                    <div className="card">
+                                        <h2 className="text-xl font-bold mb-6">Data Quality Analysis</h2>
+                                        <DataQualityBadge data={fileData.dataQuality} />
+                                    </div>
+
+                                    {fileData.dataQuality.anomalies.length > 0 && (
+                                        <div className="card">
+                                            <h3 className="font-semibold mb-4 text-orange-400">
+                                                ⚠️ Detected Anomalies
+                                            </h3>
+                                            <div className="space-y-2">
+                                                {fileData.dataQuality.anomalies.map((anomaly, idx) => (
+                                                    <div key={idx} className="p-3 bg-orange-900/20 border border-orange-600/30 rounded">
+                                                        <div className="font-semibold text-sm">{anomaly.field}</div>
+                                                        <div className="text-sm text-gray-300">
+                                                            {anomaly.issue} ({anomaly.count} occurrences)
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {Object.keys(fileData.dataQuality.missingFields).length > 0 && (
+                                        <div className="card">
+                                            <h3 className="font-semibold mb-4 text-gray-300">
+                                                Missing Values by Field
+                                            </h3>
+                                            <div className="space-y-3">
+                                                {Object.entries(fileData.dataQuality.missingFields).map(([field, count]) => (
+                                                    <div key={field}>
+                                                        <div className="flex justify-between mb-1">
+                                                            <span className="text-sm">{field}</span>
+                                                            <span className="text-xs text-gray-400">
+                                                                {count} missing ({Math.round(count / fileData.rowCount * 100)}%)
+                                                            </span>
+                                                        </div>
+                                                        <div className="progress-bar">
+                                                            <div
+                                                                className="progress-fill"
+                                                                style={{
+                                                                    width: `${(count / fileData.rowCount) * 100}%`,
+                                                                }}
+                                                            ></div>
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                            )}
                         </div>
                     </div>
-                    
-                    ${stats.sourceFiles.length > 0 ? `
-                        <div class="file-list">
-                            <h4>📋 Imported Files (${stats.sourceFiles.length})</h4>
-                            ${stats.sourceFiles.map(file => `
-                                <div class="file-item">
-                                    <span class="file-name">📄 ${file}</span>
-                                </div>
-                            `).join('')}
-                        </div>
-                    ` : ''}
-                    
-                    <div class="control-panel">
-                        <button class="btn btn-primary" onclick="app.exportData('csv')">📥 Export CSV</button>
-                        <button class="btn btn-primary" onclick="app.exportData('json')">📥 Export JSON</button>
-                        <button class="btn btn-danger" onclick="if(confirm('Clear all data?')) { app.warehouse.clear(); app.render(); }">🗑️ Clear All</button>
-                    </div>
-                    
-                    ${stats.totalRows > 0 ? `
-                        <div class="table-container">
-                            <div class="toolbar">
-                                <input type="text" class="search-input" id="searchBox" placeholder="🔍 Search across all columns..." value="${this.searchTerm}">
-                                <select class="select-input" id="pageSizeSelect">
-                                    <option value="25" ${this.pageSize === 25 ? 'selected' : ''}>25 rows/page</option>
-                                    <option value="50" ${this.pageSize === 50 ? 'selected' : ''}>50 rows/page</option>
-                                    <option value="100" ${this.pageSize === 100 ? 'selected' : ''}>100 rows/page</option>
-                                    <option value="200" ${this.pageSize === 200 ? 'selected' : ''}>200 rows/page</option>
-                                </select>
-                            </div>
-                            
-                            <div class="table-wrapper">
-                                <table class="data-table">
-                                    <thead>
-                                        <tr>
-                                            ${this.warehouse.masterDataset.headers.map((header, idx) => `
-                                                <th onclick="app.sortColumn = ${idx}; app.sortDirection = app.sortDirection === 'asc' ? 'desc' : 'asc'; app.render();">
-                                                    ${header} ${this.sortColumn === idx ? (this.sortDirection === 'asc' ? '↑' : '↓') : ''}
-                                                </th>
-                                            `).join('')}
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        ${currentData.map(row => `
-                                            <tr>
-                                                ${row.map(cell => `<td>${this.escapeHtml(String(cell || ''))}</td>`).join('')}
-                                            </tr>
-                                        `).join('')}
-                                    </tbody>
-                                </table>
-                            </div>
-                            
-                            <div class="pagination">
-                                <div>
-                                    Showing ${((this.currentPage - 1) * this.pageSize) + 1} to ${Math.min(this.currentPage * this.pageSize, filteredData.length)} of ${filteredData.length.toLocaleString()} rows
-                                </div>
-                                <div>
-                                    <button onclick="app.currentPage = 1; app.render();" ${this.currentPage === 1 ? 'disabled' : ''}>⏮ First</button>
-                                    <button onclick="app.currentPage--; app.render();" ${this.currentPage === 1 ? 'disabled' : ''}>◀ Previous</button>
-                                    <span style="margin: 0 16px;">Page ${this.currentPage} of ${totalPages}</span>
-                                    <button onclick="app.currentPage++; app.render();" ${this.currentPage === totalPages ? 'disabled' : ''}>Next ▶</button>
-                                    <button onclick="app.currentPage = ${totalPages}; app.render();" ${this.currentPage === totalPages ? 'disabled' : ''}>Last ⏭</button>
-                                </div>
-                            </div>
-                        </div>
-                    ` : `
-                        <div class="table-container" style="text-align: center; padding: 60px;">
-                            <div class="upload-icon" style="font-size: 64px;">📊</div>
-                            <h3>No Data Loaded</h3>
-                            <p>Upload your first file to get started. Supports 20+ formats including Excel, CSV, JSON, XML, HTML, and Markdown tables.</p>
-                        </div>
-                    `}
-                `;
-                
-                appDiv.innerHTML = html;
-                
-                // Attach event listeners
-                const searchBox = document.getElementById('searchBox');
-                if (searchBox) {
-                    searchBox.oninput = (e) => {
-                        this.searchTerm = e.target.value;
-                        this.currentPage = 1;
-                        this.render();
-                    };
-                }
-                
-                const pageSizeSelect = document.getElementById('pageSizeSelect');
-                if (pageSizeSelect) {
-                    pageSizeSelect.onchange = (e) => {
-                        this.pageSize = parseInt(e.target.value);
-                        this.currentPage = 1;
-                        this.render();
-                    };
-                }
-                
-                // File upload handlers
-                const fileInput1 = document.getElementById('fileInput1');
-                if (fileInput1) {
-                    fileInput1.onchange = (e) => {
-                        if (e.target.files[0]) this.addFile(e.target.files[0]);
-                        fileInput1.value = '';
-                    };
-                }
-                
-                const fileInput2 = document.getElementById('fileInput2');
-                if (fileInput2) {
-                    fileInput2.onchange = (e) => {
-                        if (e.target.files[0]) this.addFile(e.target.files[0]);
-                        fileInput2.value = '';
-                    };
-                }
-                
-                // Drag and drop
-                ['dropZone1', 'dropZone2'].forEach(zoneId => {
-                    const zone = document.getElementById(zoneId);
-                    if (zone) {
-                        zone.ondragover = (e) => {
-                            e.preventDefault();
-                            zone.classList.add('drag-over');
-                        };
-                        zone.ondragleave = () => {
-                            zone.classList.remove('drag-over');
-                        };
-                        zone.ondrop = (e) => {
-                            e.preventDefault();
-                            zone.classList.remove('drag-over');
-                            const file = e.dataTransfer.files[0];
-                            if (file) this.addFile(file);
-                        };
-                    }
-                });
-            }
-            
-            escapeHtml(text) {
-                const div = document.createElement('div');
-                div.textContent = text;
-                return div.innerHTML;
-            }
-            
-            attachGlobalEvents() {
-                window.app = this;
-                // Add animation styles
-                if (!document.querySelector('#animationStyles')) {
-                    const style = document.createElement('style');
-                    style.id = 'animationStyles';
-                    style.textContent = `
-                        @keyframes slideIn {
-                            from {
-                                transform: translateX(100%);
-                                opacity: 0;
-                            }
-                            to {
-                                transform: translateX(0);
-                                opacity: 1;
-                            }
-                        }
-                        button:disabled {
-                            opacity: 0.5;
-                            cursor: not-allowed;
-                        }
-                    `;
-                    document.head.appendChild(style);
-                }
-            }
-            
-            updateProgress(percent) {
-                // Optional: Add progress bar functionality
-            }
+                </div>
+            );
         }
-        
-        // Initialize application
-        const app = new UniversalTableReaderApp();
+
+        // Render App
+        ReactDOM.render(<App />, document.getElementById('root'));
     </script>
 </body>
 </html>
