@@ -1,1277 +1,1536 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Universal AI File Intelligence Engine</title>
-    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/lucide/latest/umd/lucide.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/papaparse/5.4.1/papaparse.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/js-yaml/4.1.0/js-yaml.min.js"></script>
-    <style>
-        :root {
-            --primary: #0f172a;
-            --secondary: #1e293b;
-            --accent: #3b82f6;
-            --accent-light: #60a5fa;
-            --success: #10b981;
-            --warning: #f59e0b;
-            --error: #ef4444;
-            --text: #f1f5f9;
-            --text-muted: #cbd5e1;
-            --border: #334155;
-            --bg-hover: #1e293b;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ScholarLib AI Bulk Import Engine</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ═══ ROOT & THEME ═══ */
+:root {
+  --navy: #0f1117;
+  --navy2: #161b27;
+  --navy3: #1e2535;
+  --navy4: #252d3d;
+  --teal: #00d4aa;
+  --teal2: #00b890;
+  --teal3: rgba(0,212,170,0.12);
+  --amber: #f59e0b;
+  --amber3: rgba(245,158,11,0.12);
+  --coral: #ef4444;
+  --coral3: rgba(239,68,68,0.12);
+  --green: #22c55e;
+  --green3: rgba(34,197,94,0.12);
+  --text1: #f0f4ff;
+  --text2: #9ba8c0;
+  --text3: #6b7a95;
+  --border: rgba(255,255,255,0.07);
+  --border2: rgba(255,255,255,0.12);
+  --font-sans: 'DM Sans', sans-serif;
+  --font-display: 'DM Serif Display', serif;
+  --font-mono: 'DM Mono', monospace;
+  --radius: 10px;
+  --radius-lg: 16px;
+}
+[data-theme="light"] {
+  --navy: #f8faff;
+  --navy2: #eef1f8;
+  --navy3: #e4e9f4;
+  --navy4: #dce3f0;
+  --text1: #0f1117;
+  --text2: #4a5568;
+  --text3: #9aa5b8;
+  --border: rgba(0,0,0,0.07);
+  --border2: rgba(0,0,0,0.12);
+  --teal3: rgba(0,212,170,0.1);
+  --amber3: rgba(245,158,11,0.1);
+  --coral3: rgba(239,68,68,0.1);
+  --green3: rgba(34,197,94,0.1);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--font-sans);
+  background: var(--navy);
+  color: var(--text1);
+  min-height: 100vh;
+  transition: background 0.3s, color 0.3s;
+  line-height: 1.6;
+}
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+/* ═══ HEADER ═══ */
+.header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 1rem 2rem;
+  border-bottom: 1px solid var(--border);
+  background: var(--navy2);
+  position: sticky; top: 0; z-index: 100;
+}
+.logo { display: flex; align-items: center; gap: 10px; }
+.logo-icon {
+  width: 36px; height: 36px; border-radius: 8px;
+  background: linear-gradient(135deg, var(--teal), var(--teal2));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; flex-shrink: 0;
+}
+.logo-text { font-family: var(--font-display); font-size: 1.2rem; letter-spacing: -0.01em; }
+.logo-text span { color: var(--teal); }
+.header-right { display: flex; align-items: center; gap: 12px; }
+.theme-btn {
+  background: var(--navy3); border: 1px solid var(--border2);
+  color: var(--text2); padding: 6px 12px; border-radius: 8px;
+  font-family: var(--font-sans); font-size: 13px; cursor: pointer;
+  transition: all 0.2s;
+}
+.theme-btn:hover { color: var(--teal); border-color: var(--teal); }
+.status-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--teal); animation: pulse 2s infinite;
+}
+@keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(0.8)} }
 
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, var(--primary) 0%, #0f172a 100%);
-            color: var(--text);
-            min-height: 100vh;
-        }
+/* ═══ MAIN LAYOUT ═══ */
+.main { max-width: 1200px; margin: 0 auto; padding: 2rem; }
 
-        /* Smooth Animations */
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
+/* ═══ UPLOAD ZONE ═══ */
+.upload-zone {
+  border: 2px dashed var(--border2);
+  border-radius: var(--radius-lg);
+  padding: 3rem 2rem;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s;
+  background: var(--navy2);
+  position: relative;
+  overflow: hidden;
+}
+.upload-zone::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: radial-gradient(circle at 50% 50%, var(--teal3) 0%, transparent 70%);
+  opacity: 0; transition: opacity 0.3s;
+}
+.upload-zone:hover, .upload-zone.dragover {
+  border-color: var(--teal);
+  background: var(--navy3);
+}
+.upload-zone:hover::before, .upload-zone.dragover::before { opacity: 1; }
+.upload-zone.dragover { transform: scale(1.01); }
+.upload-icon { font-size: 3rem; margin-bottom: 1rem; position: relative; z-index:1; }
+.upload-title {
+  font-family: var(--font-display); font-size: 1.8rem;
+  margin-bottom: 0.5rem; position: relative; z-index:1;
+}
+.upload-sub { color: var(--text2); margin-bottom: 1.5rem; position: relative; z-index:1; }
+.format-badges { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; position: relative; z-index:1; }
+.badge {
+  background: var(--navy3); border: 1px solid var(--border2);
+  color: var(--text2); padding: 4px 10px; border-radius: 20px;
+  font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.05em;
+}
+.badge.teal { background: var(--teal3); border-color: var(--teal); color: var(--teal); }
+.upload-btn {
+  margin-top: 1.5rem; display: inline-flex; align-items: center; gap: 8px;
+  background: var(--teal); color: #0f1117; padding: 10px 24px;
+  border-radius: 8px; font-family: var(--font-sans); font-weight: 600;
+  font-size: 14px; cursor: pointer; border: none; transition: all 0.2s;
+  position: relative; z-index:1;
+}
+.upload-btn:hover { background: var(--teal2); transform: translateY(-1px); }
+#fileInput { display: none; }
 
-        @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateX(-20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateX(0);
-            }
-        }
+/* ═══ LIBRABOT PANEL ═══ */
+.librabot-panel { display: none; }
+.librabot-panel.active { display: block; }
+.bot-header {
+  display: flex; align-items: center; gap: 12px;
+  background: var(--navy2); border: 1px solid var(--border);
+  border-radius: var(--radius) var(--radius) 0 0;
+  padding: 12px 16px;
+}
+.bot-avatar {
+  width: 40px; height: 40px; border-radius: 50%;
+  background: var(--teal3); border: 2px solid var(--teal);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px; flex-shrink: 0;
+}
+.bot-name { font-weight: 600; font-size: 15px; }
+.bot-status { color: var(--text3); font-size: 12px; display: flex; align-items: center; gap: 5px; }
+.status-working { color: var(--teal); }
+.chat-window {
+  background: var(--navy2); border: 1px solid var(--border); border-top: none;
+  border-radius: 0 0 var(--radius) var(--radius);
+  padding: 1.5rem; min-height: 300px;
+  max-height: 600px; overflow-y: auto;
+  display: flex; flex-direction: column; gap: 12px;
+}
+.chat-window::-webkit-scrollbar { width: 4px; }
+.chat-window::-webkit-scrollbar-track { background: transparent; }
+.chat-window::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
 
-        @keyframes pulse-glow {
-            0%, 100% {
-                box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
-            }
-            50% {
-                box-shadow: 0 0 40px rgba(59, 130, 246, 0.6);
-            }
-        }
+/* Messages */
+.msg { display: flex; gap: 10px; animation: msgIn 0.3s ease; }
+@keyframes msgIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+.msg-avatar {
+  width: 30px; height: 30px; border-radius: 50%;
+  background: var(--teal3); border: 1.5px solid var(--teal);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; flex-shrink: 0; margin-top: 2px;
+}
+.msg-content { flex: 1; }
+.msg-text {
+  background: var(--navy3); border: 1px solid var(--border);
+  border-radius: 4px 12px 12px 12px;
+  padding: 10px 14px; font-size: 14px; line-height: 1.6;
+  max-width: 600px;
+}
+.msg-text code {
+  font-family: var(--font-mono); background: var(--navy4);
+  padding: 1px 5px; border-radius: 3px; font-size: 12px;
+  color: var(--teal);
+}
+.msg-time { font-size: 11px; color: var(--text3); margin-top: 4px; }
 
-        .animate-fade-in-up {
-            animation: fadeInUp 0.6s ease-out;
-        }
+/* Typing indicator */
+.typing-dots { display: flex; gap: 4px; padding: 8px 12px; }
+.typing-dots span {
+  width: 6px; height: 6px; background: var(--text3); border-radius: 50%;
+  animation: dot 1.2s ease infinite;
+}
+.typing-dots span:nth-child(2) { animation-delay: 0.2s; }
+.typing-dots span:nth-child(3) { animation-delay: 0.4s; }
+@keyframes dot { 0%,80%,100%{transform:scale(0.8);opacity:0.5} 40%{transform:scale(1);opacity:1} }
 
-        .animate-slide-in {
-            animation: slideIn 0.5s ease-out;
-        }
+/* Progress bar */
+.progress-bar-wrap {
+  background: var(--navy4); border-radius: 4px; height: 6px;
+  margin: 8px 0; overflow: hidden;
+}
+.progress-bar-fill {
+  height: 100%; background: var(--teal); border-radius: 4px;
+  transition: width 0.3s ease;
+}
+.progress-label { font-size: 12px; color: var(--text3); font-family: var(--font-mono); }
 
-        /* Scrollbar Styling */
-        ::-webkit-scrollbar {
-            width: 8px;
-            height: 8px;
-        }
+/* Clarification buttons */
+.clarify-btns { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+.clarify-btn {
+  background: var(--navy4); border: 1px solid var(--border2);
+  color: var(--teal); padding: 6px 14px; border-radius: 20px;
+  font-family: var(--font-sans); font-size: 13px; cursor: pointer;
+  transition: all 0.2s;
+}
+.clarify-btn:hover { background: var(--teal3); border-color: var(--teal); }
 
-        ::-webkit-scrollbar-track {
-            background: var(--primary);
-        }
+/* ═══ COLUMN MAPPING ═══ */
+.mapping-table {
+  width: 100%; border-collapse: collapse; font-size: 13px;
+  margin: 8px 0;
+}
+.mapping-table th {
+  text-align: left; padding: 6px 10px;
+  color: var(--text3); font-weight: 500; font-size: 11px;
+  letter-spacing: 0.07em; text-transform: uppercase;
+  border-bottom: 1px solid var(--border);
+}
+.mapping-table td { padding: 8px 10px; border-bottom: 1px solid var(--border); }
+.mapping-table tr:last-child td { border-bottom: none; }
+.col-source {
+  font-family: var(--font-mono); background: var(--navy4);
+  padding: 2px 7px; border-radius: 4px; font-size: 12px; color: var(--text1);
+}
+.conf-bar-wrap { display: flex; align-items: center; gap: 8px; }
+.conf-bar { flex: 1; background: var(--navy4); height: 5px; border-radius: 3px; overflow: hidden; }
+.conf-bar-fill { height: 100%; border-radius: 3px; }
+.conf-high { background: var(--teal); }
+.conf-med { background: var(--amber); }
+.conf-low { background: var(--coral); }
+.conf-na { background: var(--text3); }
+.conf-pct { font-family: var(--font-mono); font-size: 11px; color: var(--text3); min-width: 30px; }
+.map-select {
+  background: var(--navy4); border: 1px solid var(--border2);
+  color: var(--text1); padding: 3px 8px; border-radius: 4px;
+  font-family: var(--font-sans); font-size: 12px; cursor: pointer;
+}
+.map-arrow { color: var(--text3); margin: 0 6px; }
 
-        ::-webkit-scrollbar-thumb {
-            background: var(--accent);
-            border-radius: 4px;
-        }
+/* ═══ PREVIEW TABLE ═══ */
+.preview-section { margin-top: 1.5rem; }
+.section-title {
+  font-family: var(--font-display); font-size: 1.2rem;
+  margin-bottom: 1rem; display: flex; align-items: center; gap: 10px;
+}
+.section-title .badge { font-family: var(--font-sans); font-size: 12px; }
+.table-controls {
+  display: flex; gap: 10px; align-items: center; margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+.search-input {
+  flex: 1; min-width: 200px;
+  background: var(--navy3); border: 1px solid var(--border2);
+  color: var(--text1); padding: 8px 14px; border-radius: 8px;
+  font-family: var(--font-sans); font-size: 13px; outline: none;
+  transition: border-color 0.2s;
+}
+.search-input:focus { border-color: var(--teal); }
+.search-input::placeholder { color: var(--text3); }
+.filter-select {
+  background: var(--navy3); border: 1px solid var(--border2);
+  color: var(--text2); padding: 8px 12px; border-radius: 8px;
+  font-family: var(--font-sans); font-size: 13px; cursor: pointer;
+}
+.table-wrap {
+  border: 1px solid var(--border); border-radius: var(--radius);
+  overflow: hidden; background: var(--navy2);
+}
+.virt-table-head {
+  display: grid; background: var(--navy3);
+  border-bottom: 1px solid var(--border2);
+  position: sticky; top: 0; z-index: 10;
+}
+.th-cell {
+  padding: 10px 12px; font-size: 11px; font-weight: 500;
+  color: var(--text3); letter-spacing: 0.07em; text-transform: uppercase;
+  cursor: pointer; user-select: none; display: flex; align-items: center; gap: 4px;
+  border-right: 1px solid var(--border);
+}
+.th-cell:hover { color: var(--teal); }
+.th-cell:last-child { border-right: none; }
+.virt-container {
+  height: 420px; overflow-y: auto; position: relative;
+}
+.virt-container::-webkit-scrollbar { width: 5px; }
+.virt-container::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+.virt-spacer-top, .virt-spacer-bottom { width: 100%; }
+.virt-row {
+  display: grid; border-bottom: 1px solid var(--border);
+  transition: background 0.15s; border-left: 3px solid transparent;
+}
+.virt-row:hover { background: var(--navy3); }
+.virt-row.ok { border-left-color: var(--green); }
+.virt-row.warn { border-left-color: var(--amber); }
+.virt-row.error { border-left-color: var(--coral); }
+.virt-row.selected { background: var(--teal3); }
+.td-cell {
+  padding: 9px 12px; font-size: 12px; color: var(--text2);
+  border-right: 1px solid var(--border);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  cursor: pointer;
+}
+.td-cell:last-child { border-right: none; }
+.td-cell.editing {
+  padding: 4px 8px;
+}
+.td-cell input {
+  width: 100%; background: var(--navy4); border: 1px solid var(--teal);
+  color: var(--text1); padding: 3px 6px; border-radius: 4px;
+  font-family: var(--font-mono); font-size: 12px; outline: none;
+}
+.td-cell.title-cell { color: var(--text1); font-weight: 500; }
+.td-cell.id-cell { font-family: var(--font-mono); color: var(--teal); font-size: 11px; }
+.td-cell.isbn-cell { font-family: var(--font-mono); font-size: 11px; }
+.td-cell.status-cell { display: flex; align-items: center; }
+.status-dot-ok { width:8px;height:8px;border-radius:50%;background:var(--green);flex-shrink:0; }
+.status-dot-warn { width:8px;height:8px;border-radius:50%;background:var(--amber);flex-shrink:0; }
+.status-dot-err { width:8px;height:8px;border-radius:50%;background:var(--coral);flex-shrink:0; }
+.row-checkbox { width: 14px; height: 14px; accent-color: var(--teal); cursor: pointer; }
 
-        ::-webkit-scrollbar-thumb:hover {
-            background: var(--accent-light);
-        }
+/* ═══ QUALITY REPORT ═══ */
+.quality-card {
+  background: var(--navy2); border: 1px solid var(--border);
+  border-radius: var(--radius-lg); padding: 1.5rem; margin-top: 1.5rem;
+}
+.quality-title {
+  font-family: var(--font-display); font-size: 1rem; margin-bottom: 1rem;
+  display: flex; align-items: center; gap: 8px;
+}
+.quality-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; }
+.quality-item {
+  background: var(--navy3); border-radius: var(--radius); padding: 12px 14px;
+  border: 1px solid var(--border);
+}
+.quality-item .q-label { font-size: 11px; color: var(--text3); margin-bottom: 4px; }
+.quality-item .q-val { font-size: 1.5rem; font-weight: 600; font-family: var(--font-mono); }
+.q-ok { color: var(--green); }
+.q-warn { color: var(--amber); }
+.q-err { color: var(--coral); }
+.q-info { color: var(--teal); }
 
-        /* Glass Effect */
-        .glass {
-            background: rgba(30, 41, 59, 0.7);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(59, 130, 246, 0.2);
-        }
+/* ═══ ACTION BAR ═══ */
+.action-bar {
+  position: fixed; bottom: 0; left: 0; right: 0;
+  background: var(--navy2); border-top: 1px solid var(--border2);
+  padding: 1rem 2rem; display: none; z-index: 200;
+  flex-wrap: wrap; gap: 10px; align-items: center; justify-content: center;
+}
+.action-bar.visible { display: flex; }
+.btn-primary {
+  background: var(--teal); color: #0f1117;
+  border: none; padding: 10px 24px; border-radius: 8px;
+  font-family: var(--font-sans); font-weight: 600; font-size: 14px;
+  cursor: pointer; display: flex; align-items: center; gap: 8px;
+  transition: all 0.2s;
+}
+.btn-primary:hover { background: var(--teal2); transform: translateY(-1px); }
+.btn-secondary {
+  background: var(--navy3); border: 1px solid var(--border2);
+  color: var(--text1); padding: 10px 20px; border-radius: 8px;
+  font-family: var(--font-sans); font-size: 14px; cursor: pointer;
+  display: flex; align-items: center; gap: 8px; transition: all 0.2s;
+}
+.btn-secondary:hover { border-color: var(--teal); color: var(--teal); }
+.btn-ghost {
+  background: transparent; border: 1px solid var(--border2);
+  color: var(--text2); padding: 10px 20px; border-radius: 8px;
+  font-family: var(--font-sans); font-size: 14px; cursor: pointer;
+  transition: all 0.2s;
+}
+.btn-ghost:hover { background: var(--navy3); color: var(--coral); border-color: var(--coral); }
+.action-count {
+  font-family: var(--font-mono); font-size: 13px; color: var(--text3);
+  padding: 0 12px;
+}
+.action-bar-spacer { height: 80px; }
 
-        /* Custom Input Styling */
-        input, textarea, select {
-            background: rgba(15, 23, 42, 0.8);
-            border: 1px solid var(--border);
-            color: var(--text);
-            padding: 0.75rem;
-            border-radius: 0.5rem;
-            transition: all 0.3s ease;
-        }
+/* ═══ TOAST ═══ */
+.toast {
+  position: fixed; bottom: 100px; right: 24px;
+  background: var(--navy3); border: 1px solid var(--teal);
+  color: var(--text1); padding: 12px 18px; border-radius: var(--radius);
+  font-size: 13px; z-index: 300; animation: toastIn 0.3s ease;
+  max-width: 320px; display: none;
+}
+.toast.visible { display: block; }
+@keyframes toastIn { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
 
-        input:focus, textarea:focus, select:focus {
-            outline: none;
-            border-color: var(--accent);
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
-        }
-
-        /* Button Styling */
-        button {
-            transition: all 0.3s ease;
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-light) 100%);
-            color: white;
-            border: none;
-            padding: 0.75rem 1.5rem;
-            border-radius: 0.5rem;
-            cursor: pointer;
-            font-weight: 600;
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(59, 130, 246, 0.4);
-        }
-
-        .btn-secondary {
-            background: var(--secondary);
-            color: var(--text);
-            border: 1px solid var(--border);
-            padding: 0.75rem 1.5rem;
-            border-radius: 0.5rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .btn-secondary:hover {
-            background: var(--bg-hover);
-            border-color: var(--accent);
-        }
-
-        /* Loading Animation */
-        .spinner {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid rgba(59, 130, 246, 0.3);
-            border-top-color: var(--accent);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        /* Card Styling */
-        .card {
-            background: rgba(30, 41, 59, 0.5);
-            border: 1px solid var(--border);
-            border-radius: 0.75rem;
-            padding: 1.5rem;
-            transition: all 0.3s ease;
-        }
-
-        .card:hover {
-            border-color: var(--accent);
-            background: rgba(30, 41, 59, 0.8);
-        }
-
-        /* Table Styling */
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        th {
-            background: rgba(15, 23, 42, 0.8);
-            padding: 1rem;
-            text-align: left;
-            font-weight: 600;
-            border-bottom: 2px solid var(--border);
-            color: var(--accent-light);
-        }
-
-        td {
-            padding: 0.75rem 1rem;
-            border-bottom: 1px solid var(--border);
-        }
-
-        tr:hover {
-            background: rgba(59, 130, 246, 0.1);
-        }
-
-        /* Status Badges */
-        .badge {
-            display: inline-block;
-            padding: 0.25rem 0.75rem;
-            border-radius: 9999px;
-            font-size: 0.875rem;
-            font-weight: 600;
-        }
-
-        .badge-success {
-            background: rgba(16, 185, 129, 0.2);
-            color: var(--success);
-        }
-
-        .badge-warning {
-            background: rgba(245, 158, 11, 0.2);
-            color: var(--warning);
-        }
-
-        .badge-error {
-            background: rgba(239, 68, 68, 0.2);
-            color: var(--error);
-        }
-
-        .badge-info {
-            background: rgba(59, 130, 246, 0.2);
-            color: var(--accent-light);
-        }
-
-        /* Gradient Text */
-        .gradient-text {
-            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-light) 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        /* Modal */
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.7);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-            backdrop-filter: blur(4px);
-        }
-
-        .modal {
-            background: var(--secondary);
-            border: 1px solid var(--border);
-            border-radius: 1rem;
-            max-width: 600px;
-            width: 90%;
-            max-height: 90vh;
-            overflow-y: auto;
-            animation: fadeInUp 0.3s ease-out;
-        }
-
-        /* Code Block */
-        .code-block {
-            background: rgba(15, 23, 42, 0.9);
-            border: 1px solid var(--border);
-            border-radius: 0.5rem;
-            padding: 1rem;
-            font-family: 'Courier New', monospace;
-            font-size: 0.875rem;
-            overflow-x: auto;
-            color: var(--accent-light);
-        }
-
-        /* Progress Bar */
-        .progress-bar {
-            width: 100%;
-            height: 8px;
-            background: rgba(59, 130, 246, 0.2);
-            border-radius: 4px;
-            overflow: hidden;
-            margin: 1rem 0;
-        }
-
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, var(--accent) 0%, var(--accent-light) 100%);
-            transition: width 0.3s ease;
-            border-radius: 4px;
-        }
-    </style>
+/* ═══ MOBILE ═══ */
+@media(max-width:768px) {
+  .main { padding: 1rem; }
+  .upload-title { font-size: 1.3rem; }
+  .quality-grid { grid-template-columns: repeat(2, 1fr); }
+  .table-controls { flex-direction: column; }
+  .search-input { min-width: unset; width: 100%; }
+  .header { padding: 0.75rem 1rem; }
+  .action-bar { flex-direction: column; padding: 1rem; }
+}
+</style>
 </head>
 <body>
-    <div id="root"></div>
 
-    <script>
-        // ============================================
-        // UNIVERSAL AI FILE INTELLIGENCE ENGINE
-        // Core AI Detection & Parsing Pipeline
-        // ============================================
+<!-- HEADER -->
+<header class="header">
+  <div class="logo">
+    <div class="logo-icon">📚</div>
+    <div class="logo-text">Scholar<span>Lib</span> <small style="font-family:var(--font-sans);font-size:0.7rem;color:var(--text3);font-weight:400">AI Import Engine</small></div>
+  </div>
+  <div class="header-right">
+    <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text3)">
+      <div class="status-dot"></div> <span id="headerStatus">Ready</span>
+    </div>
+    <button class="theme-btn" onclick="toggleTheme()">☀ Light</button>
+  </div>
+</header>
 
-        class FileIntelligenceEngine {
-            constructor() {
-                this.parsers = new Map();
-                this.schemaInference = new SchemaInferenceEngine();
-                this.registerDefaultParsers();
-            }
+<div class="main">
 
-            registerDefaultParsers() {
-                this.parsers.set('csv', new CSVParser());
-                this.parsers.set('json', new JSONParser());
-                this.parsers.set('xlsx', new ExcelParser());
-                this.parsers.set('xml', new XMLParser());
-                this.parsers.set('txt', new TextParser());
-            }
+<!-- UPLOAD ZONE -->
+<div id="uploadZone" class="upload-zone" ondragover="ev.preventDefault();this.classList.add('dragover')" ondragleave="this.classList.remove('dragover')" ondrop="handleDrop(event)">
+  <div class="upload-icon">🤖</div>
+  <h1 class="upload-title">AI Bulk Import Engine</h1>
+  <p class="upload-sub">Drop any file — LibraBot will figure out the rest</p>
+  <div class="format-badges">
+    <span class="badge teal">CSV</span>
+    <span class="badge teal">XLSX</span>
+    <span class="badge teal">JSON</span>
+    <span class="badge teal">XML</span>
+    <span class="badge">TXT</span>
+    <span class="badge">TSV</span>
+    <span class="badge">LOG</span>
+    <span class="badge">Any</span>
+  </div>
+  <button class="upload-btn" onclick="document.getElementById('fileInput').click()">
+    📂 Browse File
+  </button>
+  <input type="file" id="fileInput" accept="*/*" onchange="handleFileSelect(event)">
+</div>
 
-            async detectFileType(file, content) {
-                const name = file.name.toLowerCase();
-                const ext = name.split('.').pop();
+<!-- LIBRABOT PANEL -->
+<div id="librabotPanel" class="librabot-panel">
+  <div class="bot-header">
+    <div class="bot-avatar">🤖</div>
+    <div>
+      <div class="bot-name">LibraBot</div>
+      <div class="bot-status" id="botStatus"><span class="status-working">● Analysing...</span></div>
+    </div>
+    <div style="margin-left:auto">
+      <button class="theme-btn" onclick="startOver()" style="font-size:12px">↺ Start Over</button>
+    </div>
+  </div>
+  <div class="chat-window" id="chatWindow"></div>
+</div>
 
-                // Extension-based detection
-                if (this.parsers.has(ext)) {
-                    return { type: ext, confidence: 0.95 };
-                }
+<!-- COLUMN MAPPING SECTION -->
+<div id="mappingSection" style="display:none;margin-top:1.5rem">
+  <div class="section-title">📊 Column Mapping <span class="badge" id="mappingConf"></span></div>
+  <div class="table-wrap">
+    <table class="mapping-table" id="mappingTable">
+      <thead>
+        <tr>
+          <th>Source Column</th>
+          <th></th>
+          <th>ScholarLib Field</th>
+          <th>Confidence</th>
+          <th>Sample Values</th>
+        </tr>
+      </thead>
+      <tbody id="mappingBody"></tbody>
+    </table>
+  </div>
+</div>
 
-                // Content-based detection (heuristic)
-                return this.detectByContent(content);
-            }
+<!-- PREVIEW TABLE SECTION -->
+<div id="previewSection" class="preview-section" style="display:none">
+  <div class="section-title">
+    📋 Extracted Books
+    <span class="badge teal" id="previewCount"></span>
+    <span class="badge" id="warnCount" style="background:var(--amber3);border-color:var(--amber);color:var(--amber)"></span>
+    <span class="badge" id="errCount" style="background:var(--coral3);border-color:var(--coral);color:var(--coral)"></span>
+  </div>
+  <div class="table-controls">
+    <input type="text" class="search-input" id="tableSearch" placeholder="🔍 Search any field..." oninput="filterTable()">
+    <select class="filter-select" id="statusFilter" onchange="filterTable()">
+      <option value="all">All Rows</option>
+      <option value="ok">✅ Ready</option>
+      <option value="warn">⚠ Warnings</option>
+      <option value="error">❌ Errors</option>
+    </select>
+    <select class="filter-select" id="categoryFilter" onchange="filterTable()">
+      <option value="all">All Categories</option>
+    </select>
+    <button class="btn-secondary" onclick="toggleSelectAll()" style="font-size:13px;padding:8px 14px">☑ Select All</button>
+  </div>
+  <div class="table-wrap">
+    <div class="virt-table-head" id="tableHead"></div>
+    <div class="virt-container" id="virtContainer" onscroll="renderVirtTable()">
+      <div id="spacerTop" class="virt-spacer-top"></div>
+      <div id="rowsContainer"></div>
+      <div id="spacerBottom" class="virt-spacer-bottom"></div>
+    </div>
+  </div>
+  <div style="padding:8px 12px;font-size:12px;color:var(--text3);font-family:var(--font-mono)">
+    Showing <span id="visibleCount">0</span> of <span id="totalCount">0</span> rows · Click any cell to edit · <span style="color:var(--teal)">Green</span>=ready · <span style="color:var(--amber)">Amber</span>=warnings · <span style="color:var(--coral)">Red</span>=skipped
+  </div>
+</div>
 
-            detectByContent(content) {
-                const text = typeof content === 'string' ? content : new TextDecoder().decode(content.slice(0, 1000));
+<!-- QUALITY REPORT -->
+<div id="qualityReport" style="display:none">
+  <div class="quality-card">
+    <div class="quality-title">📊 Data Quality Report</div>
+    <div class="quality-grid" id="qualityGrid"></div>
+  </div>
+</div>
 
-                // JSON detection
-                if (text.trim().startsWith('{') || text.trim().startsWith('[')) {
-                    try {
-                        JSON.parse(text);
-                        return { type: 'json', confidence: 0.98 };
-                    } catch (e) { }
-                }
+<div class="action-bar-spacer"></div>
+</div>
 
-                // XML detection
-                if (text.trim().startsWith('<')) {
-                    return { type: 'xml', confidence: 0.95 };
-                }
+<!-- ACTION BAR -->
+<div class="action-bar" id="actionBar">
+  <button class="btn-primary" onclick="importToScholarLib()" id="importBtn">✅ Import Books → ScholarLib</button>
+  <button class="btn-secondary" onclick="downloadJSON()">⬇ Download JSON</button>
+  <button class="btn-secondary" onclick="downloadCSV()">⬇ Download CSV</button>
+  <div class="action-count" id="actionCount"></div>
+  <button class="btn-ghost" onclick="startOver()">↺ Start Over</button>
+</div>
 
-                // CSV detection
-                if (text.includes(',') || text.includes('\t')) {
-                    const lines = text.split('\n').slice(0, 5);
-                    const consistentCols = lines.every((line, i) => {
-                        if (i === 0) return true;
-                        return line.split(',').length === lines[0].split(',').length;
-                    });
-                    if (consistentCols) {
-                        return { type: 'csv', confidence: 0.85 };
-                    }
-                }
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
 
-                return { type: 'txt', confidence: 0.5 };
-            }
+<script>
+/* ═══ 1. CONFIG & CONSTANTS ═══ */
+const SCHOLARLIB_CATEGORIES = [
+  'Fiction','Non-Fiction','Science','Mathematics','History',
+  'Literature','Technology','Arts','Reference','Biography',
+  'General','Geography','Philosophy','Religion','Law',
+  'Medicine','Business','Language','Sports','Music'
+];
+const CATEGORY_FUZZY = {
+  'sci-fi':'Fiction','scifi':'Fiction','fantasy':'Fiction','novel':'Fiction','fiction':'Fiction',
+  'nonfiction':'Non-Fiction','non fiction':'Non-Fiction','documentary':'Non-Fiction',
+  'natural science':'Science','biology':'Science','chemistry':'Science','physics':'Science',
+  'maths':'Mathematics','math':'Mathematics','calculus':'Mathematics','algebra':'Mathematics','statistics':'Mathematics',
+  'computing':'Technology','programming':'Technology','it':'Technology','computer':'Technology','tech':'Technology','coding':'Technology','software':'Technology','cs':'Technology',
+  'bio':'Biography','autobiography':'Biography','memoir':'Biography',
+  'lit':'Literature','english lit':'Literature','english literature':'Literature','poetry':'Literature',
+  'general studies':'General','misc':'General','miscellaneous':'General','other':'General',
+  'art':'Arts','painting':'Arts','music':'Music','sports':'Sports','geography':'Geography',
+  'law':'Law','legal':'Law','medicine':'Medicine','medical':'Medicine','health':'Medicine',
+  'business':'Business','economics':'Business','finance':'Business',
+  'religion':'Religion','philosophy':'Philosophy','language':'Language'
+};
+const FIELD_ALIASES = {
+  title: ['title','book title','book name','titre','titolo','título','buchtitel','name','名前','كتاب','nom','nombre','header','subject'],
+  author: ['author','authors','writer','by','auteur','autore','autor','verfasser','written by','auth'],
+  isbn: ['isbn','isbn10','isbn13','isbn-10','isbn-13','isbnno','isbn no','book id number','ean'],
+  category: ['category','cat','genre','subject','dept','department','topic','type','section','class','classification'],
+  quantity: ['quantity','qty','copies','stock','count','num','number','exemplaires','nbre','amount','copy count','available','total'],
+  publisher: ['publisher','pub','published by','press','imprint','publishing'],
+  year: ['year','published','publication year','pub year','date','release year','year published','yr'],
+  description: ['description','desc','summary','synopsis','about','notes','note'],
+  id: ['id','book id','bookid','record id','item id','library id','ref','reference']
+};
+const SCHOLARLIB_FIELDS = ['title','author','isbn','category','quantity','id','publisher','year','description','[Extra / Notes]','[Skipped]'];
+const ROW_HEIGHT = 40;
+const BUFFER_ROWS = 15;
+let udm = null;
+let filteredRows = [];
+let allSelected = false;
 
-            async parseFile(file) {
-                try {
-                    const arrayBuffer = await file.arrayBuffer();
-                    const detection = await this.detectFileType(file, arrayBuffer);
-                    const parser = this.parsers.get(detection.type);
+/* ═══ THEME ═══ */
+function toggleTheme(){
+  const t = document.body.dataset.theme === 'light' ? 'dark' : 'light';
+  document.body.dataset.theme = t === 'dark' ? '' : t;
+  document.querySelector('.theme-btn').textContent = t === 'light' ? '🌙 Dark' : '☀ Light';
+}
 
-                    if (!parser) {
-                        throw new Error(`No parser found for type: ${detection.type}`);
-                    }
+/* ═══ FILE HANDLING ═══ */
+const uploadZone = document.getElementById('uploadZone');
+uploadZone.addEventListener('click', e => { if(e.target !== uploadZone && !e.target.classList.contains('upload-zone') && e.target.tagName !== 'P' && e.target.tagName !== 'H1' && e.target.tagName !== 'DIV') return; document.getElementById('fileInput').click(); });
+function handleDrop(e){
+  e.preventDefault(); e.currentTarget.classList.remove('dragover');
+  const f = e.dataTransfer.files[0]; if(f) processFile(f);
+}
+function handleFileSelect(e){ const f = e.target.files[0]; if(f) processFile(f); }
 
-                    const parsed = await parser.parse(arrayBuffer, file);
-                    
-                    // Infer schema
-                    const schema = this.schemaInference.infer(parsed.records);
+/* ═══ 2. FILE INTELLIGENCE DETECTOR ═══ */
+function detectFormat(bytes, text, filename){
+  // Magic byte detection
+  const sig = bytes.slice(0,4);
+  if(sig[0]===0x50 && sig[1]===0x4B) return 'XLSX';
+  if(text.trimStart().startsWith('<')) return text.includes('<?xml')||text.includes('<book')||text.includes('<Books')||text.includes('<records')||text.includes('<library') ? 'XML' : 'XML';
+  const t = text.trimStart();
+  if(t.startsWith('{') || t.startsWith('[')) return 'JSON';
+  const ext = filename.split('.').pop().toLowerCase();
+  if(ext==='json') return 'JSON';
+  if(ext==='xml') return 'XML';
+  if(ext==='tsv') return 'TSV';
+  if(ext==='xlsx'||ext==='xls') return 'XLSX';
+  if(ext==='csv') return 'CSV';
+  // Heuristic: delimiter frequency
+  const lines = text.split('\n').slice(0,10).join('\n');
+  const tabs = (lines.match(/\t/g)||[]).length;
+  const commas = (lines.match(/,/g)||[]).length;
+  const semis = (lines.match(/;/g)||[]).length;
+  const pipes = (lines.match(/\|/g)||[]).length;
+  if(tabs > commas && tabs > semis) return 'TSV';
+  if(semis > commas && semis > tabs) return 'CSV_SEMI';
+  if(pipes > commas && pipes > semis) return 'CSV_PIPE';
+  return 'CSV';
+}
+function detectEncoding(bytes){
+  if(bytes[0]===0xFF && bytes[1]===0xFE) return 'UTF-16 LE';
+  if(bytes[0]===0xFE && bytes[1]===0xFF) return 'UTF-16 BE';
+  if(bytes[0]===0xEF && bytes[1]===0xBB && bytes[2]===0xBF) return 'UTF-8 BOM';
+  return 'UTF-8';
+}
+function detectStructure(fmt){
+  if(['CSV','TSV','CSV_SEMI','CSV_PIPE','XLSX'].includes(fmt)) return 'TABULAR';
+  if(fmt==='JSON') return 'NESTED';
+  if(fmt==='XML') return 'NESTED';
+  return 'SEQUENTIAL';
+}
 
-                    return {
-                        fileInfo: {
-                            name: file.name,
-                            size: file.size,
-                            type: file.type,
-                            detectedType: detection.type,
-                            confidence: detection.confidence,
-                            uploadedAt: new Date().toISOString(),
-                        },
-                        records: parsed.records,
-                        schema: schema,
-                        rowCount: parsed.records.length,
-                        columnCount: schema.fields.length,
-                        dataQuality: this.analyzeQuality(parsed.records, schema),
-                    };
-                } catch (error) {
-                    throw new Error(`Failed to parse file: ${error.message}`);
-                }
-            }
+/* ═══ MAIN PROCESS ═══ */
+async function processFile(file){
+  if(file.size > 100*1024*1024){ showToast('❌ File too large (>100MB). Please split into smaller files.'); return; }
+  document.getElementById('uploadZone').style.display='none';
+  const panel = document.getElementById('librabotPanel');
+  panel.classList.add('active');
+  setBotStatus('Analysing...');
+  setHeaderStatus('Processing');
+  clearChat();
+  const t0 = Date.now();
+  // Read file
+  const arrayBuffer = await file.arrayBuffer();
+  const bytes = new Uint8Array(arrayBuffer);
+  const encoding = detectEncoding(bytes);
+  let text = '';
+  try{ text = new TextDecoder(encoding.startsWith('UTF-16') ? 'utf-16le' : 'utf-8').decode(bytes); } catch(e){ text = new TextDecoder('latin1').decode(bytes); }
+  // Remove BOM
+  if(text.charCodeAt(0)===0xFEFF) text = text.slice(1);
+  const fmt = detectFormat(bytes, text, file.name);
+  const struct = detectStructure(fmt);
+  const sizeFmt = file.size > 1024*1024 ? (file.size/1024/1024).toFixed(1)+'MB' : Math.round(file.size/1024)+'KB';
 
-            analyzeQuality(records, schema) {
-                const quality = {
-                    completeness: 0,
-                    consistency: 0,
-                    anomalies: [],
-                    missingFields: {},
-                    duplicates: 0,
-                };
+  // Stage 1
+  await botMsg(`📂 File received: <code>${file.name}</code> (${sizeFmt}). Let me take a look...`, 0);
+  await wait(350);
+  // Stage 2
+  await botMsg(`🔍 Fingerprinting format... Detected <code>${fmt.replace('_SEMI','(;)').replace('_PIPE','(|)')}</code> with <code>${encoding}</code> encoding.`, 100);
+  await wait(300);
+  // Parse
+  let rows = [];
+  let parseError = null;
+  try{
+    if(fmt==='XLSX') rows = await parseXLSX(arrayBuffer);
+    else if(fmt==='JSON') rows = parseJSON(text);
+    else if(fmt==='XML') rows = parseXML(text);
+    else rows = parseCSV(text, fmt);
+  }catch(e){ parseError = e.message; }
+  if(parseError || !rows || rows.length===0){
+    await botMsg(`❌ I couldn't parse this file as <code>${fmt}</code>. ${parseError||'No rows found.'}\n\nYou can try saving it as CSV from Excel, or checking for encoding issues.`, 200,true,true);
+    addClarifyBtns(['↺ Try Again','Upload Different File'], [startOver, startOver]);
+    setBotStatus('Error'); return;
+  }
+  const headers = Object.keys(rows[0]||{});
+  // Stage 3
+  await botMsg(`📊 Structure looks <code>${struct}</code>. Found <code>${headers.length}</code> columns and approximately <code>${rows.length}</code> rows.`, 0);
+  await wait(400);
+  // Stage 4
+  await botMsg(`🧠 Analysing column names: ${headers.map(h=>`<code>${h}</code>`).join(', ')}`, 0);
+  await wait(500);
+  // Schema inference
+  const schema = inferSchema(rows, headers);
+  // Stage 5 — Mapping visualization
+  await botMsg(`🔗 Mapping to ScholarLib fields:`, 0);
+  await wait(200);
+  showMappingTable(schema, headers);
+  // Check for medium/low confidence
+  const uncertain = headers.filter(h => schema[h].mapsTo && schema[h].confidence < 85 && schema[h].confidence > 0);
+  if(uncertain.length > 0){
+    const h = uncertain[0];
+    const s = schema[h];
+    await botMsg(`⚠️ I mapped <code>${h}</code> → <b>${s.mapsTo}</b> with <b>${s.confidence}%</b> confidence.\nSample values: ${s.sampleValues.slice(0,3).map(v=>`"${v}"`).join(', ')}.\nDoes this look correct?`, 300,true);
+    addClarifyBtns(['✅ Yes, keep it',`Choose different field ▾`,'Skip this column'],[
+      ()=>{addUserMsg('Yes, keep it');continueProcess(file,rows,schema,headers,t0);},
+      ()=>{addUserMsg('I\'ll adjust in the table');continueProcess(file,rows,schema,headers,t0);},
+      ()=>{ schema[h].mapsTo=null;addUserMsg('Skip that column');continueProcess(file,rows,schema,headers,t0); }
+    ]);
+  } else {
+    await continueProcess(file, rows, schema, headers, t0);
+  }
+}
 
-                if (records.length === 0) {
-                    return quality;
-                }
+async function continueProcess(file, rows, schema, headers, t0){
+  // Stage 6 — Extract with progress
+  await wait(300);
+  await botMsg(`⚙️ Extracting and normalizing ${rows.length} records...`, 0);
+  const progId = addProgressBar();
+  const normalizedBooks = [];
+  const chunkSize = Math.min(500, Math.max(50, Math.floor(rows.length/10)));
+  for(let i=0;i<rows.length;i+=chunkSize){
+    const chunk = rows.slice(i, i+chunkSize);
+    for(const row of chunk) normalizedBooks.push(normalizeBook(row, schema, headers, normalizedBooks));
+    updateProgressBar(progId, Math.round(((i+chunkSize)/rows.length)*100));
+    await yieldToUI();
+  }
+  updateProgressBar(progId, 100);
+  // Build UDM
+  const parseTimeMs = Date.now()-t0;
+  const qr = buildQualityReport(normalizedBooks);
+  udm = {
+    metadata:{ fileName:file.name, fileSize:file.size, detectedFormat: file.name.split('.').pop().toUpperCase(), encoding:'UTF-8', structureType:detectStructure('CSV'), rowCount:rows.length, columnCount:headers.length, parseTimeMs, confidence: Math.round(Object.values(schema).reduce((a,s)=>a+s.confidence,0)/Object.keys(schema).length) },
+    schema, records: rows, normalizedBooks, qualityReport: qr
+  };
+  filteredRows = [...normalizedBooks];
+  // Stage 7
+  const readyCount = normalizedBooks.filter(b=>b._status==='ok'||b._status==='warn').length;
+  const warnCount = normalizedBooks.filter(b=>b._status==='warn').length;
+  const errCount = normalizedBooks.filter(b=>b._status==='error').length;
+  if(readyCount===normalizedBooks.length){
+    await botMsg(`✅ Perfect! All ${readyCount} books extracted cleanly.`, 0);
+  } else {
+    await botMsg(`✅ Done! <b>${readyCount}</b> books ready, <b>${warnCount}</b> with auto-fixes, <b>${errCount}</b> skipped (missing title).`, 0);
+  }
+  await wait(200);
+  await botMsg(`📋 Preview below — click any cell to edit before importing. Use the checkboxes to include/exclude rows.`, 0);
+  setBotStatus('Done');
+  setHeaderStatus(`${readyCount} books ready`);
+  showPreviewTable(normalizedBooks);
+  showQualityReport(qr);
+  showActionBar(readyCount, normalizedBooks);
+}
 
-                // Check completeness
-                let totalFields = 0;
-                let filledFields = 0;
+/* ═══ 3. FORMAT PARSERS ═══ */
+/* 3a. CSV Parser */
+function parseCSV(text, fmt){
+  let delim = ',';
+  if(fmt==='TSV') delim='\t';
+  else if(fmt==='CSV_SEMI') delim=';';
+  else if(fmt==='CSV_PIPE') delim='|';
+  else {
+    // auto-detect
+    const lines = text.split('\n').slice(0,5).join('\n');
+    const tabs=(lines.match(/\t/g)||[]).length, commas=(lines.match(/,/g)||[]).length, semis=(lines.match(/;/g)||[]).length, pipes=(lines.match(/\|/g)||[]).length;
+    const max=Math.max(tabs,commas,semis,pipes);
+    if(max===tabs) delim='\t'; else if(max===semis) delim=';'; else if(max===pipes) delim='|'; else delim=',';
+  }
+  const lines = text.replace(/\r\n/g,'\n').replace(/\r/g,'\n').split('\n');
+  if(lines.length<2) return [];
+  const headers = parseCSVLine(lines[0], delim);
+  const rows = [];
+  for(let i=1;i<lines.length;i++){
+    const line = lines[i].trim();
+    if(!line) continue;
+    const vals = parseCSVLine(line, delim);
+    if(vals.every(v=>!v)) continue;
+    const row={};
+    headers.forEach((h,idx)=>{ row[h||`col${idx}`] = (vals[idx]||'').trim(); });
+    rows.push(row);
+  }
+  return rows;
+}
+function parseCSVLine(line, delim){
+  const result=[]; let cur='', inQ=false;
+  for(let i=0;i<line.length;i++){
+    const c=line[i];
+    if(c==='"'){
+      if(inQ && line[i+1]==='"'){ cur+='"'; i++; }
+      else inQ=!inQ;
+    } else if(c===delim && !inQ){ result.push(cur); cur=''; }
+    else cur+=c;
+  }
+  result.push(cur);
+  return result;
+}
 
-                records.forEach(record => {
-                    schema.fields.forEach(field => {
-                        totalFields++;
-                        const value = record[field.name];
-                        if (value !== null && value !== undefined && value !== '') {
-                            filledFields++;
-                        } else {
-                            quality.missingFields[field.name] = (quality.missingFields[field.name] || 0) + 1;
-                        }
-                    });
-                });
-
-                quality.completeness = Math.round((filledFields / totalFields) * 100);
-
-                // Check for duplicates
-                const serialized = records.map(r => JSON.stringify(r));
-                const unique = new Set(serialized);
-                quality.duplicates = records.length - unique.size;
-
-                // Anomaly detection
-                schema.fields.forEach(field => {
-                    const values = records.map(r => r[field.name]).filter(v => v != null);
-                    const typeViolations = values.filter(v => 
-                        !this.matchesType(v, field.inferredType)
-                    ).length;
-
-                    if (typeViolations > values.length * 0.1) {
-                        quality.anomalies.push({
-                            field: field.name,
-                            issue: 'Type inconsistency',
-                            count: typeViolations,
-                        });
-                    }
-                });
-
-                quality.consistency = Math.round((1 - quality.anomalies.length / schema.fields.length) * 100);
-
-                return quality;
-            }
-
-            matchesType(value, type) {
-                switch (type) {
-                    case 'number':
-                        return !isNaN(parseFloat(value));
-                    case 'boolean':
-                        return value === true || value === false || value === 'true' || value === 'false';
-                    case 'date':
-                        return !isNaN(Date.parse(value));
-                    case 'string':
-                        return typeof value === 'string';
-                    default:
-                        return true;
-                }
-            }
+/* 3b. XLSX Parser (pure JS) */
+async function parseXLSX(arrayBuffer){
+  const bytes = new Uint8Array(arrayBuffer);
+  // Find files in ZIP
+  const zip = parseZIP(bytes);
+  const sharedStrings = zip['xl/sharedStrings.xml'] ? parseSharedStrings(zip['xl/sharedStrings.xml']) : [];
+  const sheetXml = zip['xl/worksheets/sheet1.xml'];
+  if(!sheetXml) throw new Error('No sheet1.xml found');
+  return parseSheet(sheetXml, sharedStrings);
+}
+function parseZIP(bytes){
+  const files={};
+  let i=0;
+  while(i<bytes.length-4){
+    if(bytes[i]===0x50&&bytes[i+1]===0x4B&&bytes[i+2]===0x03&&bytes[i+3]===0x04){
+      const fnLen = bytes[i+26]|(bytes[i+27]<<8);
+      const extLen = bytes[i+28]|(bytes[i+29]<<8);
+      const compSize = bytes[i+18]|(bytes[i+19]<<8)|(bytes[i+20]<<16)|(bytes[i+21]<<24);
+      const comprMethod = bytes[i+8]|(bytes[i+9]<<8);
+      const fnBytes = bytes.slice(i+30, i+30+fnLen);
+      const fname = new TextDecoder().decode(fnBytes);
+      const dataStart = i+30+fnLen+extLen;
+      const compData = bytes.slice(dataStart, dataStart+compSize);
+      try{
+        let text='';
+        if(comprMethod===0) text = new TextDecoder().decode(compData);
+        else {
+          try{
+            const ds = new DecompressionStream('deflate-raw');
+            const writer = ds.writable.getWriter();
+            writer.write(compData); writer.close();
+            const chunks=[]; const reader = ds.readable.getReader();
+            // sync read hack — store for later
+            files['__async_'+fname] = {ds, compData, fname};
+          }catch(e){}
+          // fallback: use sync decompress via a simple approach
+          try{ text = inflateRaw(compData); }catch(e){}
         }
+        if(text) files[fname]=text;
+      }catch(e){}
+      i = dataStart+compSize;
+    } else i++;
+  }
+  // Try async decompress for missed files
+  return files;
+}
+function inflateRaw(data){
+  // Minimal inflate using browser's DecompressionStream synchronously via a hack
+  // We'll use a TextDecoder fallback for non-compressed data
+  try{
+    // Try raw inflate
+    const blob = new Blob([data]);
+    // Can't do sync, return empty — async version handles this
+    return '';
+  }catch(e){ return ''; }
+}
+async function parseXLSXAsync(arrayBuffer){
+  const bytes = new Uint8Array(arrayBuffer);
+  const files = await extractZIPAsync(bytes);
+  const sharedStrings = files['xl/sharedStrings.xml'] ? parseSharedStrings(files['xl/sharedStrings.xml']) : [];
+  const sheetXml = files['xl/worksheets/sheet1.xml'];
+  if(!sheetXml) throw new Error('Cannot read Excel file structure. Try saving as CSV.');
+  return parseSheet(sheetXml, sharedStrings);
+}
+async function extractZIPAsync(bytes){
+  const files={};
+  let i=0;
+  const toProcess=[];
+  while(i<bytes.length-4){
+    if(bytes[i]===0x50&&bytes[i+1]===0x4B&&bytes[i+2]===0x03&&bytes[i+3]===0x04){
+      const fnLen=bytes[i+26]|(bytes[i+27]<<8);
+      const extLen=bytes[i+28]|(bytes[i+29]<<8);
+      const compSize=bytes[i+18]|(bytes[i+19]<<8)|(bytes[i+20]<<16)|(bytes[i+21]<<24);
+      const comprMethod=bytes[i+8]|(bytes[i+9]<<8);
+      const fname=new TextDecoder().decode(bytes.slice(i+30,i+30+fnLen));
+      const dataStart=i+30+fnLen+extLen;
+      const compData=bytes.slice(dataStart,dataStart+compSize);
+      if(fname.endsWith('.xml')||fname.endsWith('.rels')){
+        toProcess.push({fname,comprMethod,compData});
+      }
+      i=dataStart+compSize;
+    } else i++;
+  }
+  for(const {fname,comprMethod,compData} of toProcess){
+    try{
+      if(comprMethod===0){
+        files[fname]=new TextDecoder().decode(compData);
+      } else {
+        const ds=new DecompressionStream('deflate-raw');
+        const w=ds.writable.getWriter();
+        await w.write(compData); await w.close();
+        const chunks=[];
+        const reader=ds.readable.getReader();
+        while(true){ const {done,value}=await reader.read(); if(done)break; chunks.push(value); }
+        const total=chunks.reduce((a,c)=>a+c.length,0);
+        const merged=new Uint8Array(total);
+        let off=0; for(const c of chunks){merged.set(c,off);off+=c.length;}
+        files[fname]=new TextDecoder().decode(merged);
+      }
+    }catch(e){}
+  }
+  return files;
+}
+async function parseXLSX(arrayBuffer){
+  return await parseXLSXAsync(arrayBuffer);
+}
+function parseSharedStrings(xml){
+  const strings=[];
+  const matches=xml.matchAll(/<(?:t|si)[^>]*>([\s\S]*?)<\/(?:t|si)>/g);
+  let current='';
+  const parser=new DOMParser();
+  const doc=parser.parseFromString(xml,'text/xml');
+  const si=doc.querySelectorAll('si');
+  si.forEach(s=>{
+    strings.push(s.textContent||'');
+  });
+  if(strings.length===0){
+    // fallback regex
+    const re=/<t[^>]*>([^<]*)<\/t>/g; let m;
+    while((m=re.exec(xml))!==null) strings.push(m[1]);
+  }
+  return strings;
+}
+function parseSheet(xml, sharedStrings){
+  const parser=new DOMParser();
+  const doc=parser.parseFromString(xml,'text/xml');
+  const rows=doc.querySelectorAll('row');
+  const allRowData=[];
+  rows.forEach(row=>{
+    const cells=row.querySelectorAll('c');
+    const rowObj={};
+    cells.forEach(cell=>{
+      const ref=cell.getAttribute('r');
+      const t=cell.getAttribute('t');
+      const vEl=cell.querySelector('v');
+      const inlineStr=cell.querySelector('is > t');
+      let val='';
+      if(inlineStr) val=inlineStr.textContent;
+      else if(vEl){
+        if(t==='s') val=sharedStrings[parseInt(vEl.textContent)]||'';
+        else if(t==='b') val=vEl.textContent==='1'?'TRUE':'FALSE';
+        else val=vEl.textContent;
+      }
+      // col index
+      const col=ref.replace(/[0-9]/g,'');
+      const colIdx=colToIndex(col);
+      rowObj[colIdx]=val;
+    });
+    if(Object.keys(rowObj).length>0) allRowData.push(rowObj);
+  });
+  if(allRowData.length<2) return [];
+  const maxCol=Math.max(...allRowData.map(r=>Math.max(...Object.keys(r).map(Number))));
+  const headers=[];
+  for(let c=0;c<=maxCol;c++) headers.push(allRowData[0][c]||`col${c}`);
+  const result=[];
+  for(let r=1;r<allRowData.length;r++){
+    const row={};
+    headers.forEach((h,idx)=>{ row[h]=(allRowData[r][idx]||'').toString().trim(); });
+    if(headers.some(h=>row[h])) result.push(row);
+  }
+  return result;
+}
+function colToIndex(col){
+  let n=0;
+  for(let i=0;i<col.length;i++) n=n*26+(col.charCodeAt(i)-64);
+  return n-1;
+}
 
-        // Schema Inference Engine
-        class SchemaInferenceEngine {
-            infer(records) {
-                if (records.length === 0) {
-                    return { fields: [], confidence: 0 };
-                }
+/* 3c. JSON Parser */
+function parseJSON(text){
+  let data; try{ data=JSON.parse(text); }catch(e){ throw new Error('Invalid JSON: '+e.message); }
+  if(Array.isArray(data)){
+    if(data.length===0) return [];
+    if(typeof data[0]==='object' && data[0]!==null) return data.map(flattenObj);
+    return [];
+  }
+  if(typeof data==='object'){
+    // Find an array inside
+    for(const key of Object.keys(data)){
+      if(Array.isArray(data[key]) && data[key].length>0 && typeof data[key][0]==='object') return data[key].map(flattenObj);
+    }
+    return [flattenObj(data)];
+  }
+  return [];
+}
+function flattenObj(obj, prefix=''){
+  const flat={};
+  for(const [k,v] of Object.entries(obj)){
+    const key=prefix?`${prefix}.${k}`:k;
+    if(v!==null && typeof v==='object' && !Array.isArray(v)) Object.assign(flat,flattenObj(v,key));
+    else flat[key]=v===null||v===undefined?'':String(v);
+  }
+  return flat;
+}
 
-                const fieldMap = new Map();
-                const fieldNames = new Set();
+/* 3d. XML Parser */
+function parseXML(text){
+  const parser=new DOMParser();
+  const doc=parser.parseFromString(text,'text/xml');
+  const root=doc.documentElement;
+  // Find most repeated child tag
+  const childTags={};
+  root.childNodes.forEach(n=>{ if(n.nodeType===1) childTags[n.tagName]=(childTags[n.tagName]||0)+1; });
+  let recTag=Object.entries(childTags).sort((a,b)=>b[1]-a[1])[0];
+  if(!recTag) return [];
+  const records=root.querySelectorAll(recTag[0]);
+  const rows=[];
+  records.forEach(rec=>{
+    const row={};
+    rec.childNodes.forEach(n=>{ if(n.nodeType===1) row[n.tagName]=n.textContent.trim(); });
+    if(Object.keys(row).length>0) rows.push(row);
+  });
+  return rows;
+}
 
-                // Collect all field names
-                records.forEach(record => {
-                    Object.keys(record).forEach(key => {
-                        fieldNames.add(key);
-                        if (!fieldMap.has(key)) {
-                            fieldMap.set(key, {
-                                name: key,
-                                types: new Set(),
-                                samples: [],
-                                nullCount: 0,
-                            });
-                        }
+/* 3e. TXT/LOG Parser */
+function parseTXT(text){
+  const lines=text.split('\n').map(l=>l.trim()).filter(Boolean);
+  if(lines.length<2) return [];
+  // Detect delimiter
+  const sample=lines.slice(0,10).join('\n');
+  const tabs=(sample.match(/\t/g)||[]).length;
+  const pipes=(sample.match(/\|/g)||[]).length;
+  const colons=(sample.match(/:/g)||[]).length;
+  // Key:Value format?
+  if(colons>lines.length*0.5){
+    const books=[]; let cur={};
+    for(const line of lines){
+      if(!line){ if(Object.keys(cur).length>0){books.push(cur);cur={};} continue; }
+      const [k,...rest]=line.split(':');
+      if(rest.length>0) cur[k.trim()]=rest.join(':').trim();
+    }
+    if(Object.keys(cur).length>0) books.push(cur);
+    if(books.length>0) return books;
+  }
+  const delim=tabs>pipes?'\t':'|';
+  const headers=lines[0].split(delim).map(h=>h.trim());
+  return lines.slice(1).map(line=>{
+    const vals=line.split(delim);
+    const row={};
+    headers.forEach((h,i)=>{ row[h]=(vals[i]||'').trim(); });
+    return row;
+  });
+}
 
-                        const field = fieldMap.get(key);
-                        const value = record[key];
-
-                        if (value === null || value === undefined || value === '') {
-                            field.nullCount++;
-                        } else {
-                            const type = this.inferType(value);
-                            field.types.add(type);
-                            if (field.samples.length < 3) {
-                                field.samples.push(value);
-                            }
-                        }
-                    });
-                });
-
-                const fields = Array.from(fieldMap.values()).map(field => {
-                    const uniqueTypes = Array.from(field.types);
-                    const inferredType = uniqueTypes.length === 1 ? uniqueTypes[0] : 'mixed';
-                    const confidence = 1 - (field.nullCount / records.length);
-
-                    return {
-                        name: field.name,
-                        inferredType: inferredType,
-                        possibleTypes: uniqueTypes,
-                        confidence: Math.round(confidence * 100),
-                        nullCount: field.nullCount,
-                        cardinality: new Set(
-                            records
-                                .map(r => r[field.name])
-                                .filter(v => v != null)
-                        ).size,
-                        samples: field.samples,
-                    };
-                });
-
-                return {
-                    fields: fields,
-                    fieldCount: fields.length,
-                    confidence: Math.round(
-                        fields.reduce((sum, f) => sum + f.confidence, 0) / fields.length
-                    ),
-                };
-            }
-
-            inferType(value) {
-                if (value === null || value === undefined) return 'null';
-                if (typeof value === 'boolean') return 'boolean';
-                if (typeof value === 'number') return 'number';
-                if (!isNaN(Date.parse(value)) && typeof value === 'string') return 'date';
-                if (typeof value === 'string') {
-                    if (!isNaN(parseFloat(value))) return 'number';
-                    return 'string';
-                }
-                if (Array.isArray(value)) return 'array';
-                if (typeof value === 'object') return 'object';
-                return 'unknown';
-            }
+/* ═══ 4. SCHEMA INFERENCE ENGINE ═══ */
+function inferSchema(rows, headers){
+  const schema={};
+  const sampleSize=Math.min(rows.length, 30);
+  for(const h of headers){
+    const vals=rows.slice(0,sampleSize).map(r=>(r[h]||'').toString().trim()).filter(Boolean);
+    const uniq=[...new Set(vals)];
+    const nullRate=1-(vals.length/sampleSize);
+    const uniqueRatio=uniq.length/Math.max(vals.length,1);
+    const avgLen=vals.reduce((a,v)=>a+v.length,0)/Math.max(vals.length,1);
+    // Type detection
+    let detectedType='text';
+    const isbnPat=vals.filter(v=>/^[\d\-]{10,17}$/.test(v.replace(/[\-\s]/g,'')));
+    const numPat=vals.filter(v=>/^\d+(\.\d+)?$/.test(v));
+    if(isbnPat.length>vals.length*0.5) detectedType='isbn';
+    else if(numPat.length>vals.length*0.8) detectedType='numeric';
+    else if(avgLen>40) detectedType='text';
+    // Field mapping
+    const hn=h.toLowerCase().trim().replace(/[^a-z0-9 ]/g,'');
+    let mapsTo=null, confidence=0;
+    for(const [field,aliases] of Object.entries(FIELD_ALIASES)){
+      for(const alias of aliases){
+        if(hn===alias||hn.includes(alias)||alias.includes(hn)){
+          const sc=hn===alias?95:hn.startsWith(alias)||alias.startsWith(hn)?85:60;
+          if(sc>confidence){ mapsTo=field; confidence=sc; }
         }
+      }
+    }
+    // Type-based boost
+    if(detectedType==='isbn' && (!mapsTo||mapsTo!=='isbn')){ mapsTo='isbn'; confidence=Math.max(confidence,88); }
+    if(detectedType==='numeric' && mapsTo==='quantity') confidence=Math.min(confidence+10,99);
+    if(uniqueRatio>0.9 && avgLen>15 && !mapsTo) { mapsTo='title'; confidence=55; }
+    const confLevel=confidence>=85?'high':confidence>=50?'medium':'low';
+    schema[h]={detectedType,mapsTo,confidence,confidenceLevel:confLevel,nullRate,uniquenessRatio:uniqueRatio,sampleValues:uniq.slice(0,5)};
+  }
+  // Dedup: if two cols map to same field, keep higher confidence
+  const seen={};
+  for(const h of headers){
+    const s=schema[h];
+    if(s.mapsTo){
+      if(seen[s.mapsTo] && seen[s.mapsTo].confidence>=s.confidence) s.mapsTo=null;
+      else if(seen[s.mapsTo]) seen[s.mapsTo].mapsTo=null;
+      if(s.mapsTo) seen[s.mapsTo]=s;
+    }
+  }
+  return schema;
+}
 
-        // ============================================
-        // FILE PARSERS
-        // ============================================
+/* ═══ 5. NORMALIZATION ENGINE ═══ */
+let _idCounter=1;
+function normalizeBook(row, schema, headers, existing){
+  const book={_status:'ok',_issues:[],_extra:{}};
+  // Map fields
+  for(const h of headers){
+    const s=schema[h]; const raw=(row[h]||'').toString().trim();
+    if(!s.mapsTo||s.mapsTo==='[Skipped]') continue;
+    if(s.mapsTo==='[Extra / Notes]'||s.mapsTo==='publisher'||s.mapsTo==='year'||s.mapsTo==='description'){ book._extra[h]=raw; continue; }
+    book[s.mapsTo]=raw;
+  }
+  // Title
+  if(!book.title||!book.title.trim()){ book._status='error'; book._issues.push('Missing title'); book.title='(No Title)'; }
+  else{ book.title=book.title.trim().replace(/\s+/g,' ').replace(/^["']|["']$/g,''); }
+  // Author
+  if(!book.author||!book.author.trim()){ book.author='Unknown Author'; book._issues.push('Missing author → defaulted'); if(book._status!=='error') book._status='warn'; }
+  else book.author=book.author.trim().replace(/\s+/g,' ');
+  // ISBN
+  if(book.isbn){ const clean=book.isbn.replace(/[\-\s]/g,''); if(clean.length!==10&&clean.length!==13){ book._issues.push('Invalid ISBN length'); if(book._status==='ok') book._status='warn'; } book.isbn=clean; } else book.isbn='';
+  // Category
+  book.category=normalizeCategory(book.category||'');
+  // Quantity
+  let qty=parseInt(book.quantity)||0;
+  if(qty<=0){ qty=1; if(book.quantity&&book.quantity!=='') book._issues.push('Invalid quantity → defaulted to 1'); }
+  book.quantity=qty; book.available=qty;
+  // ID
+  if(!book.id||!book.id.trim()){ book.id='BK'+String(_idCounter++).padStart(3,'0'); }
+  else{ const cleaned=book.id.toString().trim(); if(existing.some(b=>b.id===cleaned)){ book.id='BK'+String(_idCounter++).padStart(3,'0'); } else book.id=cleaned; }
+  book.source='ai-import';
+  book.importedAt=new Date().toISOString();
+  book._rowIndex=existing.length;
+  return book;
+}
+function normalizeCategory(raw){
+  if(!raw) return 'General';
+  const n=raw.toLowerCase().trim();
+  for(const cat of SCHOLARLIB_CATEGORIES) if(n===cat.toLowerCase()) return cat;
+  for(const [key,val] of Object.entries(CATEGORY_FUZZY)) if(n.includes(key)||key.includes(n)) return val;
+  for(const cat of SCHOLARLIB_CATEGORIES) if(n.includes(cat.toLowerCase())) return cat;
+  return raw.trim()||'General';
+}
 
-        class CSVParser {
-            async parse(arrayBuffer, file) {
-                const text = new TextDecoder().decode(arrayBuffer);
-                return new Promise((resolve, reject) => {
-                    Papa.parse(text, {
-                        header: true,
-                        skipEmptyLines: true,
-                        dynamicTyping: true,
-                        complete: (results) => {
-                            resolve({
-                                records: results.data.filter(r => Object.keys(r).some(k => r[k] != null)),
-                            });
-                        },
-                        error: reject,
-                    });
-                });
-            }
-        }
+/* ═══ 6. DATA QUALITY ANALYZER ═══ */
+function buildQualityReport(books){
+  const titles=books.map(b=>b.title.toLowerCase());
+  const dupTitles=titles.filter((t,i)=>t!=='(no title)'&&titles.indexOf(t)!==i);
+  return {
+    totalRows:books.length,
+    okCount:books.filter(b=>b._status==='ok').length,
+    warnCount:books.filter(b=>b._status==='warn').length,
+    errorCount:books.filter(b=>b._status==='error').length,
+    duplicateTitleCount:dupTitles.length,
+    missingTitleCount:books.filter(b=>b._issues.some(i=>i.includes('Missing title'))).length,
+    missingAuthorCount:books.filter(b=>b._issues.some(i=>i.includes('Missing author'))).length,
+    invalidIsbnCount:books.filter(b=>b._issues.some(i=>i.includes('ISBN'))).length,
+    autoFixedCount:books.filter(b=>b._issues.length>0).length,
+    skippedCount:books.filter(b=>b._status==='error').length
+  };
+}
 
-        class JSONParser {
-            async parse(arrayBuffer) {
-                const text = new TextDecoder().decode(arrayBuffer);
-                const data = JSON.parse(text);
+/* ═══ LIBRABOT HELPERS ═══ */
+function clearChat(){ document.getElementById('chatWindow').innerHTML=''; }
+function wait(ms){ return new Promise(r=>setTimeout(r,ms)); }
+function yieldToUI(){ return new Promise(r=>setTimeout(r,0)); }
+function setBotStatus(txt){ document.getElementById('botStatus').innerHTML=`<span class="status-working">● ${txt}</span>`; }
+function setHeaderStatus(txt){ document.getElementById('headerStatus').textContent=txt; }
 
-                let records = [];
-                if (Array.isArray(data)) {
-                    records = data;
-                } else if (typeof data === 'object') {
-                    records = [data];
-                }
+async function botMsg(html, delay=0, isWarning=false, isError=false){
+  if(delay>0) await wait(delay);
+  const win=document.getElementById('chatWindow');
+  // Show typing
+  const typingId='typing_'+Date.now();
+  const typingEl=document.createElement('div');
+  typingEl.id=typingId; typingEl.className='msg';
+  typingEl.innerHTML=`<div class="msg-avatar">🤖</div><div class="msg-content"><div class="msg-text"><div class="typing-dots"><span></span><span></span><span></span></div></div></div>`;
+  win.appendChild(typingEl); win.scrollTop=win.scrollHeight;
+  await wait(Math.min(600, 200+html.length*1.5));
+  typingEl.remove();
+  const el=document.createElement('div'); el.className='msg';
+  const color=isError?'var(--coral)':isWarning?'var(--amber)':'transparent';
+  el.innerHTML=`<div class="msg-avatar">🤖</div><div class="msg-content"><div class="msg-text" style="${color!=='transparent'?'border-color:'+color+';background:'+color+'22':''}">${html.replace(/\n/g,'<br>')}</div><div class="msg-time">${new Date().toLocaleTimeString()}</div></div>`;
+  win.appendChild(el); win.scrollTop=win.scrollHeight;
+}
+function addUserMsg(text){
+  const win=document.getElementById('chatWindow');
+  const el=document.createElement('div'); el.className='msg'; el.style.justifyContent='flex-end';
+  el.innerHTML=`<div class="msg-content" style="text-align:right"><div class="msg-text" style="background:var(--teal3);border-color:var(--teal);border-radius:12px 4px 12px 12px;margin-left:auto;max-width:300px">${escHtml(text)}</div></div>`;
+  win.appendChild(el); win.scrollTop=win.scrollHeight;
+}
+function addClarifyBtns(labels, handlers){
+  const win=document.getElementById('chatWindow');
+  const wrap=document.createElement('div'); wrap.className='clarify-btns'; wrap.style.marginLeft='40px';
+  labels.forEach((lbl,i)=>{
+    const btn=document.createElement('button'); btn.className='clarify-btn'; btn.textContent=lbl;
+    btn.onclick=()=>{ wrap.remove(); handlers[i](); };
+    wrap.appendChild(btn);
+  });
+  win.appendChild(wrap); win.scrollTop=win.scrollHeight;
+}
+function addProgressBar(){
+  const win=document.getElementById('chatWindow');
+  const id='prog_'+Date.now();
+  const el=document.createElement('div'); el.style.marginLeft='40px'; el.id=id;
+  el.innerHTML=`<div class="progress-bar-wrap"><div class="progress-bar-fill" id="${id}_fill" style="width:0%"></div></div><div class="progress-label" id="${id}_label">0%</div>`;
+  win.appendChild(el); win.scrollTop=win.scrollHeight;
+  return id;
+}
+function updateProgressBar(id, pct){
+  const fill=document.getElementById(id+'_fill'); const lbl=document.getElementById(id+'_label');
+  if(fill) fill.style.width=pct+'%';
+  if(lbl) lbl.textContent=pct+'%';
+}
 
-                return { records };
-            }
-        }
+/* ═══ MAPPING TABLE UI ═══ */
+function showMappingTable(schema, headers){
+  document.getElementById('mappingSection').style.display='block';
+  const overallConf=Math.round(Object.values(schema).reduce((a,s)=>a+s.confidence,0)/Object.keys(schema).length);
+  document.getElementById('mappingConf').textContent=`${overallConf}% avg confidence`;
+  const tbody=document.getElementById('mappingBody');
+  tbody.innerHTML='';
+  for(const h of headers){
+    const s=schema[h];
+    const confColor=s.confidence>=85?'conf-high':s.confidence>=50?'conf-med':s.confidence>0?'conf-low':'conf-na';
+    const confPct=s.confidence>0?s.confidence+'%':'N/A';
+    const confWidth=s.confidence+'%';
+    const samples=s.sampleValues.slice(0,3).map(v=>escHtml(String(v).slice(0,20))).join(', ')||'—';
+    const mappedDisplay=s.mapsTo&&s.mapsTo!=='[Extra / Notes]'&&s.mapsTo!=='[Skipped]'?`<span style="color:var(--teal);font-weight:500">${s.mapsTo}</span>`:s.mapsTo?`<span style="color:var(--text3)">${s.mapsTo}</span>`:`<span style="color:var(--text3)">—</span>`;
+    const tr=document.createElement('tr');
+    tr.innerHTML=`
+      <td><span class="col-source">${escHtml(h)}</span></td>
+      <td class="map-arrow">→</td>
+      <td>
+        <select class="map-select" data-col="${escHtml(h)}" onchange="updateMapping(this)">
+          ${SCHOLARLIB_FIELDS.map(f=>`<option value="${f}" ${f===s.mapsTo?'selected':''}>${f}</option>`).join('')}
+          <option value="">— (skip)</option>
+        </select>
+      </td>
+      <td>
+        <div class="conf-bar-wrap">
+          <div class="conf-bar"><div class="conf-bar-fill ${confColor}" style="width:${confWidth}"></div></div>
+          <span class="conf-pct">${confPct}</span>
+        </div>
+      </td>
+      <td style="color:var(--text3);font-size:11px;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${samples}</td>
+    `;
+    tbody.appendChild(tr);
+  }
+}
+function updateMapping(sel){
+  if(!udm) return;
+  const col=sel.dataset.col;
+  const newField=sel.value||null;
+  udm.schema[col].mapsTo=newField;
+  showToast(`✅ Remapped "${col}" → ${newField||'(skipped)'}`);
+}
 
-        class ExcelParser {
-            async parse(arrayBuffer) {
-                const workbook = XLSX.read(arrayBuffer, { type: 'array' });
-                const worksheet = workbook.Sheets[workbook.SheetNames[0]];
-                const records = XLSX.utils.sheet_to_json(worksheet);
-                return { records };
-            }
-        }
+/* ═══ VIRTUAL TABLE ═══ */
+const COLS = [
+  {key:'_cb',label:'',w:'40px'},
+  {key:'_idx',label:'#',w:'50px'},
+  {key:'_status',label:'Status',w:'70px'},
+  {key:'id',label:'Book ID',w:'80px'},
+  {key:'title',label:'Title',w:'200px'},
+  {key:'author',label:'Author',w:'150px'},
+  {key:'category',label:'Category',w:'110px'},
+  {key:'isbn',label:'ISBN',w:'130px'},
+  {key:'quantity',label:'Qty',w:'55px'},
+  {key:'_issues',label:'Issues',w:'180px'},
+];
+const GRID_TEMPLATE = COLS.map(c=>c.w).join(' ');
+let sortCol=null, sortDir=1;
 
-        class XMLParser {
-            async parse(arrayBuffer) {
-                const text = new TextDecoder().decode(arrayBuffer);
-                const parser = new DOMParser();
-                const doc = parser.parseFromString(text, 'application/xml');
+function showPreviewTable(books){
+  document.getElementById('previewSection').style.display='block';
+  filteredRows=[...books];
+  // Category filter options
+  const cats=[...new Set(books.map(b=>b.category))].sort();
+  const catSel=document.getElementById('categoryFilter');
+  cats.forEach(c=>{ const o=document.createElement('option'); o.value=c; o.textContent=c; catSel.appendChild(o); });
+  // Header
+  const head=document.getElementById('tableHead');
+  head.style.gridTemplateColumns=GRID_TEMPLATE;
+  head.innerHTML=COLS.map(c=>{
+    if(c.key==='_cb') return `<div class="th-cell"><input type="checkbox" id="selectAllCb" class="row-checkbox" onchange="toggleSelectAllCb(this)"></div>`;
+    return `<div class="th-cell" onclick="sortBy('${c.key}')">${c.label} <span id="sort_${c.key}"></span></div>`;
+  }).join('');
+  updateCountBadges(books);
+  renderVirtTable();
+}
 
-                const records = [];
-                const items = doc.documentElement.querySelectorAll('*');
+function updateCountBadges(books){
+  const ready=books.filter(b=>b._status!=='error').length;
+  const warn=books.filter(b=>b._status==='warn').length;
+  const err=books.filter(b=>b._status==='error').length;
+  document.getElementById('previewCount').textContent=`${ready} ready`;
+  document.getElementById('warnCount').textContent=warn?`${warn} warnings`:'';
+  document.getElementById('errCount').textContent=err?`${err} skipped`:'';
+  document.getElementById('visibleCount').textContent=filteredRows.length;
+  document.getElementById('totalCount').textContent=udm?.normalizedBooks?.length||0;
+}
 
-                items.forEach(item => {
-                    const record = {};
-                    item.attributes && Array.from(item.attributes).forEach(attr => {
-                        record[attr.name] = attr.value;
-                    });
-                    if (item.textContent && item.textContent.trim()) {
-                        record['content'] = item.textContent.trim();
-                    }
-                    if (Object.keys(record).length > 0) {
-                        records.push(record);
-                    }
-                });
+function renderVirtTable(){
+  const container=document.getElementById('virtContainer');
+  const rowsDiv=document.getElementById('rowsContainer');
+  const spacerTop=document.getElementById('spacerTop');
+  const spacerBottom=document.getElementById('spacerBottom');
+  const totalRows=filteredRows.length;
+  const totalHeight=totalRows*ROW_HEIGHT;
+  const scrollTop=container.scrollTop;
+  const visibleStart=Math.max(0,Math.floor(scrollTop/ROW_HEIGHT)-BUFFER_ROWS);
+  const visibleHeight=container.clientHeight||420;
+  const visibleEnd=Math.min(totalRows,Math.ceil((scrollTop+visibleHeight)/ROW_HEIGHT)+BUFFER_ROWS);
+  spacerTop.style.height=(visibleStart*ROW_HEIGHT)+'px';
+  spacerBottom.style.height=((totalRows-visibleEnd)*ROW_HEIGHT)+'px';
+  rowsDiv.innerHTML='';
+  for(let i=visibleStart;i<visibleEnd;i++){
+    const book=filteredRows[i];
+    if(!book) continue;
+    const row=document.createElement('div');
+    row.className=`virt-row ${book._status} ${book._selected?'selected':''}`;
+    row.style.gridTemplateColumns=GRID_TEMPLATE;
+    row.dataset.idx=i;
+    const issues=(book._issues||[]).join('; ')||'—';
+    row.innerHTML=`
+      <div class="td-cell"><input type="checkbox" class="row-checkbox" ${book._selected?'checked':''} onchange="toggleRow(${i},this)"></div>
+      <div class="td-cell" style="color:var(--text3);font-family:var(--font-mono);font-size:11px">${i+1}</div>
+      <div class="td-cell status-cell">${book._status==='ok'?'<div class="status-dot-ok"></div>':book._status==='warn'?'<div class="status-dot-warn"></div>':'<div class="status-dot-err"></div>'}</div>
+      <div class="td-cell id-cell" ondblclick="editCell(this,'${i}','id')">${escHtml(book.id)}</div>
+      <div class="td-cell title-cell" ondblclick="editCell(this,'${i}','title')">${escHtml(book.title)}</div>
+      <div class="td-cell" ondblclick="editCell(this,'${i}','author')">${escHtml(book.author)}</div>
+      <div class="td-cell">${escHtml(book.category)}</div>
+      <div class="td-cell isbn-cell">${escHtml(book.isbn||'—')}</div>
+      <div class="td-cell" style="text-align:center">${book.quantity}</div>
+      <div class="td-cell" style="color:${issues==='—'?'var(--text3)':'var(--amber)'};font-size:11px" title="${escHtml(issues)}">${escHtml(issues.slice(0,40)+(issues.length>40?'…':''))}</div>
+    `;
+    rowsDiv.appendChild(row);
+  }
+}
 
-                return { records };
-            }
-        }
+function editCell(tdEl, rowIdxStr, field){
+  const rowIdx=parseInt(rowIdxStr);
+  const book=filteredRows[rowIdx];
+  if(!book) return;
+  const current=book[field]||'';
+  tdEl.classList.add('editing');
+  const input=document.createElement('input');
+  input.value=current;
+  tdEl.textContent='';
+  tdEl.appendChild(input);
+  input.focus(); input.select();
+  const save=()=>{
+    book[field]=input.value.trim();
+    tdEl.classList.remove('editing');
+    renderVirtTable();
+  };
+  input.onblur=save;
+  input.onkeydown=e=>{ if(e.key==='Enter')save(); if(e.key==='Escape'){tdEl.textContent=current;tdEl.classList.remove('editing');} };
+}
 
-        class TextParser {
-            async parse(arrayBuffer) {
-                const text = new TextDecoder().decode(arrayBuffer);
-                const lines = text.split('\n').filter(l => l.trim());
-                const records = lines.map((line, idx) => ({
-                    'line_number': idx + 1,
-                    'content': line,
-                }));
-                return { records };
-            }
-        }
+function toggleRow(idx, cb){
+  const book=filteredRows[idx];
+  if(book) book._selected=cb.checked;
+  updateActionBar();
+}
+function toggleSelectAllCb(cb){
+  filteredRows.forEach(b=>b._selected=cb.checked);
+  allSelected=cb.checked;
+  renderVirtTable();
+  updateActionBar();
+}
+function toggleSelectAll(){
+  allSelected=!allSelected;
+  filteredRows.forEach(b=>b._selected=allSelected);
+  const cb=document.getElementById('selectAllCb');
+  if(cb) cb.checked=allSelected;
+  renderVirtTable();
+  updateActionBar();
+}
+function updateActionBar(){
+  const sel=getSelectedBooks();
+  document.getElementById('actionCount').textContent=`${sel.length} books selected`;
+  document.getElementById('importBtn').textContent=`✅ Import ${sel.length} Books → ScholarLib`;
+}
+function getSelectedBooks(){
+  if(!udm) return [];
+  const selected=filteredRows.filter(b=>b._selected&&b._status!=='error');
+  if(selected.length===0) return udm.normalizedBooks.filter(b=>b._status!=='error');
+  return selected;
+}
 
-        // ============================================
-        // REACT COMPONENTS & APP
-        // ============================================
+function filterTable(){
+  if(!udm) return;
+  const q=document.getElementById('tableSearch').value.toLowerCase();
+  const sf=document.getElementById('statusFilter').value;
+  const cf=document.getElementById('categoryFilter').value;
+  filteredRows=udm.normalizedBooks.filter(b=>{
+    if(sf!=='all'&&b._status!==sf) return false;
+    if(cf!=='all'&&b.category!==cf) return false;
+    if(q&&!(`${b.title} ${b.author} ${b.isbn} ${b.id} ${b.category}`).toLowerCase().includes(q)) return false;
+    return true;
+  });
+  document.getElementById('visibleCount').textContent=filteredRows.length;
+  document.getElementById('virtContainer').scrollTop=0;
+  renderVirtTable();
+}
 
-        const { useState, useCallback, useEffect, useRef } = React;
-        const { Upload, BarChart3, Database, AlertCircle, CheckCircle, Eye, Download, Trash2, Code, Filter, Search } = lucide;
+function sortBy(col){
+  if(sortCol===col) sortDir*=-1; else{ sortCol=col; sortDir=1; }
+  COLS.forEach(c=>{ const el=document.getElementById('sort_'+c.key); if(el) el.textContent=''; });
+  const el=document.getElementById('sort_'+col);
+  if(el) el.textContent=sortDir===1?' ↑':' ↓';
+  filteredRows.sort((a,b)=>{
+    const av=(a[col]||'').toString(); const bv=(b[col]||'').toString();
+    return av.localeCompare(bv,undefined,{numeric:true})*sortDir;
+  });
+  renderVirtTable();
+}
 
-        const engine = new FileIntelligenceEngine();
+/* ═══ QUALITY REPORT UI ═══ */
+function showQualityReport(qr){
+  document.getElementById('qualityReport').style.display='block';
+  const grid=document.getElementById('qualityGrid');
+  const items=[
+    {label:'Total Rows',val:qr.totalRows,cls:'q-info'},
+    {label:'✅ Ready',val:qr.okCount,cls:'q-ok'},
+    {label:'⚠ Warnings',val:qr.warnCount,cls:'q-warn'},
+    {label:'❌ Skipped',val:qr.errorCount,cls:'q-err'},
+    {label:'🔁 Duplicates',val:qr.duplicateTitleCount,cls:'q-warn'},
+    {label:'📝 Auto-fixed',val:qr.autoFixedCount,cls:'q-warn'},
+    {label:'📖 No Author',val:qr.missingAuthorCount,cls:'q-warn'},
+    {label:'🔢 Bad ISBN',val:qr.invalidIsbnCount,cls:'q-warn'},
+  ];
+  grid.innerHTML=items.map(i=>`<div class="quality-item"><div class="q-label">${i.label}</div><div class="q-val ${i.cls}">${i.val}</div></div>`).join('');
+}
 
-        function DataQualityBadge({ data }) {
-            const getColor = (value) => {
-                if (value >= 90) return 'badge-success';
-                if (value >= 70) return 'badge-warning';
-                return 'badge-error';
-            };
+/* ═══ ACTION BAR ═══ */
+function showActionBar(readyCount, books){
+  const bar=document.getElementById('actionBar');
+  bar.classList.add('visible');
+  document.getElementById('actionCount').textContent=`${readyCount} books selected`;
+  document.getElementById('importBtn').textContent=`✅ Import ${readyCount} Books → ScholarLib`;
+}
+function updateImportBtn(){
+  const sel=getSelectedBooks();
+  document.getElementById('importBtn').textContent=`✅ Import ${sel.length} Books → ScholarLib`;
+  document.getElementById('actionCount').textContent=`${sel.length} books selected`;
+}
 
-            return (
-                <div className="grid grid-cols-3 gap-3">
-                    <div className="card text-center">
-                        <div className="text-2xl font-bold gradient-text">{data.completeness}%</div>
-                        <div className="text-xs text-gray-400 mt-1">Completeness</div>
-                    </div>
-                    <div className="card text-center">
-                        <div className="text-2xl font-bold gradient-text">{data.consistency}%</div>
-                        <div className="text-xs text-gray-400 mt-1">Consistency</div>
-                    </div>
-                    <div className="card text-center">
-                        <div className="text-2xl font-bold gradient-text">{data.duplicates}</div>
-                        <div className="text-xs text-gray-400 mt-1">Duplicates</div>
-                    </div>
-                </div>
-            );
-        }
+/* ═══ 10. EXPORT ENGINE ═══ */
+function buildExportPayload(){
+  const books=getSelectedBooks();
+  return {
+    importMeta:{
+      engineVersion:'2.0',
+      importedAt:new Date().toISOString(),
+      sourceFile:udm?.metadata?.fileName||'unknown',
+      sourceFormat:udm?.metadata?.detectedFormat||'unknown',
+      totalImported:books.length,
+      importedBy:'librarian'
+    },
+    books:books.map(b=>({
+      id:b.id, title:b.title, author:b.author,
+      isbn:b.isbn||'', category:b.category,
+      quantity:b.quantity, available:b.available,
+      source:b.source, importedAt:b.importedAt,
+      _extra:b._extra||{}
+    }))
+  };
+}
+function downloadJSON(){
+  const payload=buildExportPayload();
+  const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
+  dlBlob(blob,'library_books_import.json');
+  showToast('⬇ JSON downloaded!');
+}
+function downloadCSV(){
+  const books=getSelectedBooks();
+  const headers=['id','title','author','isbn','category','quantity','available','source','importedAt'];
+  const lines=[headers.join(',')];
+  books.forEach(b=>lines.push(headers.map(h=>csvEsc(b[h]||'')).join(',')));
+  const blob=new Blob([lines.join('\n')],{type:'text/csv'});
+  dlBlob(blob,'library_books_import.csv');
+  showToast('⬇ CSV downloaded!');
+}
+function csvEsc(v){ const s=String(v); if(s.includes(',')||s.includes('"')||s.includes('\n')) return `"${s.replace(/"/g,'""')}"`; return s; }
+function dlBlob(blob,name){
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=name;
+  document.body.appendChild(a); a.click(); a.remove();
+}
+function importToScholarLib(){
+  const payload=buildExportPayload();
+  // postMessage API for iframe embedding
+  if(window.parent!==window) window.parent.postMessage({type:'SCHOLARLIB_IMPORT',payload},'*');
+  // Also try localStorage for direct integration
+  try{ localStorage.setItem('scholarlib_import_payload', JSON.stringify(payload)); }catch(e){}
+  showToast(`✅ ${payload.books.length} books sent to ScholarLib!`);
+  setBotStatus('Import sent');
+}
 
-        function SchemaViewer({ schema }) {
-            const [expandedFields, setExpandedFields] = useState({});
+/* ═══ UTILS ═══ */
+function escHtml(str){
+  return String(str||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('visible');
+  setTimeout(()=>t.classList.remove('visible'),3000);
+}
+function startOver(){
+  udm=null; filteredRows=[]; allSelected=false; _idCounter=1;
+  document.getElementById('uploadZone').style.display='block';
+  document.getElementById('librabotPanel').classList.remove('active');
+  document.getElementById('mappingSection').style.display='none';
+  document.getElementById('previewSection').style.display='none';
+  document.getElementById('qualityReport').style.display='none';
+  document.getElementById('actionBar').classList.remove('visible');
+  document.getElementById('fileInput').value='';
+  document.getElementById('tableSearch').value='';
+  document.getElementById('categoryFilter').innerHTML='<option value="all">All Categories</option>';
+  clearChat();
+  setHeaderStatus('Ready');
+}
 
-            const toggleField = (fieldName) => {
-                setExpandedFields(prev => ({
-                    ...prev,
-                    [fieldName]: !prev[fieldName],
-                }));
-            };
+/* ═══ PLUGIN ARCHITECTURE ═══ */
+const FileIntelligenceEngine = {
+  _parsers:[],
+  _fieldMappers:[],
+  registerParser(p){ this._parsers.push(p); },
+  registerFieldMapper(m){ this._fieldMappers.push(m); }
+};
 
-            return (
-                <div className="space-y-3">
-                    {schema.fields.map((field, idx) => (
-                        <div key={idx} className="card">
-                            <div 
-                                className="flex items-center justify-between cursor-pointer"
-                                onClick={() => toggleField(field.name)}
-                            >
-                                <div className="flex items-center gap-3 flex-1">
-                                    <Database size={18} className="text-accent-light" />
-                                    <div className="flex-1">
-                                        <div className="font-semibold">{field.name}</div>
-                                        <div className="text-sm text-gray-400">
-                                            {field.inferredType} • {field.cardinality} unique values
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className="flex items-center gap-2">
-                                    <span className={`badge badge-info`}>
-                                        {field.confidence}% confidence
-                                    </span>
-                                </div>
-                            </div>
-                            
-                            {expandedFields[field.name] && (
-                                <div className="mt-3 pt-3 border-t border-gray-700 text-sm text-gray-400">
-                                    <div className="mb-2">
-                                        <strong>Type:</strong> {field.possibleTypes.join(', ')}
-                                    </div>
-                                    <div className="mb-2">
-                                        <strong>Null Values:</strong> {field.nullCount}
-                                    </div>
-                                    <div>
-                                        <strong>Samples:</strong>
-                                        <div className="code-block mt-2">
-                                            {field.samples.map((s, i) => (
-                                                <div key={i}>{JSON.stringify(s)}</div>
-                                            ))}
-                                        </div>
-                                    </div>
-                                </div>
-                            )}
-                        </div>
-                    ))}
-                </div>
-            );
-        }
+/* ═══ KEYBOARD ═══ */
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'&&document.getElementById('librabotPanel').classList.contains('active')) startOver();
+});
 
-        function DataTableViewer({ records, schema }) {
-            const [pageSize, setPageSize] = useState(10);
-            const [page, setPage] = useState(0);
-            const [searchTerm, setSearchTerm] = useState('');
-            const [sortField, setSortField] = useState(null);
-            const [sortOrder, setSortOrder] = useState('asc');
-
-            const filteredRecords = records.filter(record =>
-                Object.values(record).some(v =>
-                    String(v).toLowerCase().includes(searchTerm.toLowerCase())
-                )
-            );
-
-            const sortedRecords = sortField
-                ? [...filteredRecords].sort((a, b) => {
-                    const aVal = a[sortField];
-                    const bVal = b[sortField];
-                    if (aVal < bVal) return sortOrder === 'asc' ? -1 : 1;
-                    if (aVal > bVal) return sortOrder === 'asc' ? 1 : -1;
-                    return 0;
-                })
-                : filteredRecords;
-
-            const paginatedRecords = sortedRecords.slice(page * pageSize, (page + 1) * pageSize);
-            const totalPages = Math.ceil(sortedRecords.length / pageSize);
-
-            const handleSort = (field) => {
-                if (sortField === field) {
-                    setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
-                } else {
-                    setSortField(field);
-                    setSortOrder('asc');
-                }
-            };
-
-            return (
-                <div className="space-y-4">
-                    <div className="flex gap-2 mb-4">
-                        <div className="flex-1 relative">
-                            <Search size={18} className="absolute left-3 top-3 text-gray-500" />
-                            <input
-                                type="text"
-                                placeholder="Search records..."
-                                className="w-full pl-10"
-                                value={searchTerm}
-                                onChange={(e) => {
-                                    setSearchTerm(e.target.value);
-                                    setPage(0);
-                                }}
-                            />
-                        </div>
-                        <select
-                            value={pageSize}
-                            onChange={(e) => {
-                                setPageSize(parseInt(e.target.value));
-                                setPage(0);
-                            }}
-                            className="px-3"
-                        >
-                            <option value={10}>10 rows</option>
-                            <option value={25}>25 rows</option>
-                            <option value={50}>50 rows</option>
-                            <option value={100}>100 rows</option>
-                        </select>
-                    </div>
-
-                    <div className="overflow-x-auto glass rounded-lg">
-                        <table>
-                            <thead>
-                                <tr>
-                                    {schema.fields.map(field => (
-                                        <th 
-                                            key={field.name}
-                                            onClick={() => handleSort(field.name)}
-                                            className="cursor-pointer hover:bg-blue-900/20"
-                                        >
-                                            <div className="flex items-center gap-2">
-                                                {field.name}
-                                                {sortField === field.name && (
-                                                    <span className="text-xs">
-                                                        {sortOrder === 'asc' ? '↑' : '↓'}
-                                                    </span>
-                                                )}
-                                            </div>
-                                        </th>
-                                    ))}
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {paginatedRecords.map((record, idx) => (
-                                    <tr key={idx}>
-                                        {schema.fields.map(field => (
-                                            <td key={`${idx}-${field.name}`}>
-                                                {record[field.name] === null || record[field.name] === undefined
-                                                    ? <span className="text-gray-500">—</span>
-                                                    : String(record[field.name]).substring(0, 50)}
-                                            </td>
-                                        ))}
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
-
-                    <div className="flex justify-between items-center">
-                        <div className="text-sm text-gray-400">
-                            Showing {paginatedRecords.length > 0 ? page * pageSize + 1 : 0} to {Math.min((page + 1) * pageSize, sortedRecords.length)} of {sortedRecords.length} records
-                        </div>
-                        <div className="flex gap-2">
-                            <button
-                                className="btn-secondary"
-                                disabled={page === 0}
-                                onClick={() => setPage(Math.max(0, page - 1))}
-                            >
-                                Previous
-                            </button>
-                            <div className="px-4 flex items-center">
-                                Page {page + 1} of {totalPages}
-                            </div>
-                            <button
-                                className="btn-secondary"
-                                disabled={page >= totalPages - 1}
-                                onClick={() => setPage(Math.min(totalPages - 1, page + 1))}
-                            >
-                                Next
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            );
-        }
-
-        function FileUploadZone({ onFileSelected }) {
-            const [isDragging, setIsDragging] = useState(false);
-            const fileInputRef = useRef(null);
-
-            const handleDragOver = (e) => {
-                e.preventDefault();
-                setIsDragging(true);
-            };
-
-            const handleDragLeave = () => {
-                setIsDragging(false);
-            };
-
-            const handleDrop = (e) => {
-                e.preventDefault();
-                setIsDragging(false);
-                const files = e.dataTransfer.files;
-                if (files.length > 0) {
-                    onFileSelected(files[0]);
-                }
-            };
-
-            const handleFileInput = (e) => {
-                if (e.target.files.length > 0) {
-                    onFileSelected(e.target.files[0]);
-                }
-            };
-
-            return (
-                <div
-                    className={`border-2 border-dashed rounded-lg p-12 text-center cursor-pointer transition-all ${
-                        isDragging
-                            ? 'border-blue-400 bg-blue-900/20'
-                            : 'border-blue-600/30 bg-blue-900/5 hover:border-blue-500'
-                    }`}
-                    onDragOver={handleDragOver}
-                    onDragLeave={handleDragLeave}
-                    onDrop={handleDrop}
-                    onClick={() => fileInputRef.current?.click()}
-                >
-                    <input
-                        ref={fileInputRef}
-                        type="file"
-                        onChange={handleFileInput}
-                        className="hidden"
-                        accept=".csv,.json,.xlsx,.xls,.xml,.txt"
-                    />
-                    <Upload size={48} className="mx-auto mb-4 text-blue-400 opacity-70" />
-                    <h3 className="text-lg font-semibold mb-2">
-                        Drop your file here or click to select
-                    </h3>
-                    <p className="text-gray-400">
-                        Supports CSV, JSON, Excel, XML, and Text files
-                    </p>
-                    <p className="text-sm text-gray-500 mt-2">
-                        The AI will automatically detect and parse your data
-                    </p>
-                </div>
-            );
-        }
-
-        function AppHeader() {
-            return (
-                <div className="text-center mb-8 animate-fade-in-up">
-                    <h1 className="text-4xl font-bold mb-2">
-                        <span className="gradient-text">Universal AI File Intelligence</span>
-                    </h1>
-                    <p className="text-gray-400">
-                        Intelligent file parsing, schema inference, and data analysis for any format
-                    </p>
-                </div>
-            );
-        }
-
-        function AIStatsPanel({ data }) {
-            return (
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-                    <div className="card text-center">
-                        <div className="text-3xl font-bold gradient-text">{data.rowCount}</div>
-                        <div className="text-sm text-gray-400 mt-1">Rows</div>
-                    </div>
-                    <div className="card text-center">
-                        <div className="text-3xl font-bold gradient-text">{data.columnCount}</div>
-                        <div className="text-sm text-gray-400 mt-1">Columns</div>
-                    </div>
-                    <div className="card text-center">
-                        <div className="text-3xl font-bold gradient-text">{data.schema.confidence}%</div>
-                        <div className="text-sm text-gray-400 mt-1">Schema Confidence</div>
-                    </div>
-                    <div className="card text-center">
-                        <div className={`text-sm font-semibold ${
-                            data.fileInfo.confidence >= 0.9 ? 'text-green-400' : 'text-yellow-400'
-                        }`}>
-                            {Math.round(data.fileInfo.confidence * 100)}% Type Confidence
-                        </div>
-                        <div className="text-sm text-gray-400 mt-1">{data.fileInfo.detectedType.toUpperCase()}</div>
-                    </div>
-                </div>
-            );
-        }
-
-        function App() {
-            const [fileData, setFileData] = useState(null);
-            const [loading, setLoading] = useState(false);
-            const [error, setError] = useState(null);
-            const [activeTab, setActiveTab] = useState('overview');
-
-            const handleFileSelected = useCallback(async (file) => {
-                setLoading(true);
-                setError(null);
-
-                try {
-                    const result = await engine.parseFile(file);
-                    setFileData(result);
-                    setActiveTab('overview');
-                } catch (err) {
-                    setError(err.message);
-                }
-
-                setLoading(false);
-            }, []);
-
-            const exportAsJSON = () => {
-                if (!fileData) return;
-                const json = JSON.stringify(fileData, null, 2);
-                const blob = new Blob([json], { type: 'application/json' });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = `${fileData.fileInfo.name}-extracted.json`;
-                a.click();
-            };
-
-            const exportAsCSV = () => {
-                if (!fileData) return;
-                const headers = fileData.schema.fields.map(f => f.name);
-                const rows = fileData.records.map(r =>
-                    headers.map(h => {
-                        const val = r[h];
-                        return typeof val === 'string' && val.includes(',')
-                            ? `"${val}"`
-                            : val;
-                    }).join(',')
-                );
-                const csv = [headers.join(','), ...rows].join('\n');
-                const blob = new Blob([csv], { type: 'text/csv' });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = `${fileData.fileInfo.name}-extracted.csv`;
-                a.click();
-            };
-
-            const clearData = () => {
-                setFileData(null);
-                setError(null);
-                setActiveTab('overview');
-            };
-
-            if (!fileData) {
-                return (
-                    <div className="min-h-screen p-6 md:p-12">
-                        <div className="max-w-6xl mx-auto">
-                            <AppHeader />
-                            <div className="card animate-fade-in-up" style={{animationDelay: '0.1s'}}>
-                                <FileUploadZone onFileSelected={handleFileSelected} />
-                            </div>
-                            {error && (
-                                <div className="mt-6 p-4 bg-red-900/20 border border-red-600 rounded-lg flex gap-3 animate-fade-in-up">
-                                    <AlertCircle size={20} className="text-red-400 flex-shrink-0" />
-                                    <div>
-                                        <h3 className="font-semibold text-red-400">Error</h3>
-                                        <p className="text-sm text-red-300 mt-1">{error}</p>
-                                    </div>
-                                </div>
-                            )}
-                            {loading && (
-                                <div className="mt-6 flex items-center justify-center gap-3">
-                                    <div className="spinner"></div>
-                                    <span className="text-gray-400">Analyzing file...</span>
-                                </div>
-                            )}
-                        </div>
-                    </div>
-                );
-            }
-
-            return (
-                <div className="min-h-screen p-6 md:p-8">
-                    <div className="max-w-7xl mx-auto">
-                        {/* Header with file info */}
-                        <div className="flex items-center justify-between mb-8 animate-fade-in-up">
-                            <div>
-                                <h1 className="text-3xl font-bold gradient-text mb-2">
-                                    {fileData.fileInfo.name}
-                                </h1>
-                                <div className="flex flex-wrap gap-3">
-                                    <span className="badge badge-info">
-                                        {fileData.fileInfo.detectedType.toUpperCase()} • {(fileData.fileInfo.size / 1024 / 1024).toFixed(2)} MB
-                                    </span>
-                                    <span className={`badge ${
-                                        fileData.fileInfo.confidence >= 0.9 ? 'badge-success' : 'badge-warning'
-                                    }`}>
-                                        {Math.round(fileData.fileInfo.confidence * 100)}% confidence
-                                    </span>
-                                </div>
-                            </div>
-                            <button
-                                onClick={clearData}
-                                className="btn-secondary flex items-center gap-2"
-                            >
-                                <Trash2 size={18} />
-                                Clear
-                            </button>
-                        </div>
-
-                        {/* Stats Panel */}
-                        <AIStatsPanel data={fileData} />
-
-                        {/* Tab Navigation */}
-                        <div className="flex gap-2 mb-6 border-b border-gray-700 pb-4 overflow-x-auto">
-                            {[
-                                { id: 'overview', label: 'Overview', icon: BarChart3 },
-                                { id: 'schema', label: 'Schema', icon: Database },
-                                { id: 'data', label: 'Data Table', icon: Eye },
-                                { id: 'quality', label: 'Quality', icon: AlertCircle },
-                            ].map(tab => (
-                                <button
-                                    key={tab.id}
-                                    onClick={() => setActiveTab(tab.id)}
-                                    className={`flex items-center gap-2 px-4 py-2 rounded transition-all ${
-                                        activeTab === tab.id
-                                            ? 'bg-blue-600 text-white'
-                                            : 'text-gray-400 hover:text-gray-200'
-                                    }`}
-                                >
-                                    <tab.icon size={18} />
-                                    {tab.label}
-                                </button>
-                            ))}
-                        </div>
-
-                        {/* Tab Content */}
-                        <div className="animate-fade-in-up">
-                            {activeTab === 'overview' && (
-                                <div className="space-y-6">
-                                    <div className="card">
-                                        <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
-                                            <CheckCircle size={24} className="text-green-400" />
-                                            File Analysis Summary
-                                        </h2>
-                                        <div className="grid md:grid-cols-2 gap-6">
-                                            <div>
-                                                <h3 className="font-semibold mb-3">File Information</h3>
-                                                <div className="space-y-2 text-sm">
-                                                    <div className="flex justify-between">
-                                                        <span className="text-gray-400">File Name:</span>
-                                                        <span className="font-mono">{fileData.fileInfo.name}</span>
-                                                    </div>
-                                                    <div className="flex justify-between">
-                                                        <span className="text-gray-400">Detected Type:</span>
-                                                        <span className="text-blue-400 font-semibold">
-                                                            {fileData.fileInfo.detectedType.toUpperCase()}
-                                                        </span>
-                                                    </div>
-                                                    <div className="flex justify-between">
-                                                        <span className="text-gray-400">File Size:</span>
-                                                        <span>{(fileData.fileInfo.size / 1024).toFixed(2)} KB</span>
-                                                    </div>
-                                                    <div className="flex justify-between">
-                                                        <span className="text-gray-400">Uploaded At:</span>
-                                                        <span className="font-mono text-xs">
-                                                            {new Date(fileData.fileInfo.uploadedAt).toLocaleString()}
-                                                        </span>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div>
-                                                <h3 className="font-semibold mb-3">Data Statistics</h3>
-                                                <div className="space-y-2 text-sm">
-                                                    <div className="flex justify-between">
-                                                        <span className="text-gray-400">Total Rows:</span>
-                                                        <span className="text-blue-400 font-bold">{fileData.rowCount}</span>
-                                                    </div>
-                                                    <div className="flex justify-between">
-                                                        <span className="text-gray-400">Total Columns:</span>
-                                                        <span className="text-blue-400 font-bold">{fileData.columnCount}</span>
-                                                    </div>
-                                                    <div className="flex justify-between">
-                                                        <span className="text-gray-400">Schema Confidence:</span>
-                                                        <span className="text-green-400 font-bold">{fileData.schema.confidence}%</span>
-                                                    </div>
-                                                    <div className="flex justify-between">
-                                                        <span className="text-gray-400">Total Fields:</span>
-                                                        <span className="text-blue-400 font-bold">{fileData.schema.fields.length}</span>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div className="card">
-                                        <h2 className="text-xl font-bold mb-4">Export Data</h2>
-                                        <div className="flex gap-3">
-                                            <button
-                                                onClick={exportAsJSON}
-                                                className="btn-primary flex items-center gap-2"
-                                            >
-                                                <Code size={18} />
-                                                Export as JSON
-                                            </button>
-                                            <button
-                                                onClick={exportAsCSV}
-                                                className="btn-primary flex items-center gap-2"
-                                            >
-                                                <Download size={18} />
-                                                Export as CSV
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                            )}
-
-                            {activeTab === 'schema' && (
-                                <div className="card">
-                                    <h2 className="text-xl font-bold mb-6">Inferred Schema</h2>
-                                    <SchemaViewer schema={fileData.schema} />
-                                </div>
-                            )}
-
-                            {activeTab === 'data' && (
-                                <div className="card">
-                                    <h2 className="text-xl font-bold mb-6">Data Preview</h2>
-                                    <DataTableViewer
-                                        records={fileData.records}
-                                        schema={fileData.schema}
-                                    />
-                                </div>
-                            )}
-
-                            {activeTab === 'quality' && (
-                                <div className="space-y-6">
-                                    <div className="card">
-                                        <h2 className="text-xl font-bold mb-6">Data Quality Analysis</h2>
-                                        <DataQualityBadge data={fileData.dataQuality} />
-                                    </div>
-
-                                    {fileData.dataQuality.anomalies.length > 0 && (
-                                        <div className="card">
-                                            <h3 className="font-semibold mb-4 text-orange-400">
-                                                ⚠️ Detected Anomalies
-                                            </h3>
-                                            <div className="space-y-2">
-                                                {fileData.dataQuality.anomalies.map((anomaly, idx) => (
-                                                    <div key={idx} className="p-3 bg-orange-900/20 border border-orange-600/30 rounded">
-                                                        <div className="font-semibold text-sm">{anomaly.field}</div>
-                                                        <div className="text-sm text-gray-300">
-                                                            {anomaly.issue} ({anomaly.count} occurrences)
-                                                        </div>
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        </div>
-                                    )}
-
-                                    {Object.keys(fileData.dataQuality.missingFields).length > 0 && (
-                                        <div className="card">
-                                            <h3 className="font-semibold mb-4 text-gray-300">
-                                                Missing Values by Field
-                                            </h3>
-                                            <div className="space-y-3">
-                                                {Object.entries(fileData.dataQuality.missingFields).map(([field, count]) => (
-                                                    <div key={field}>
-                                                        <div className="flex justify-between mb-1">
-                                                            <span className="text-sm">{field}</span>
-                                                            <span className="text-xs text-gray-400">
-                                                                {count} missing ({Math.round(count / fileData.rowCount * 100)}%)
-                                                            </span>
-                                                        </div>
-                                                        <div className="progress-bar">
-                                                            <div
-                                                                className="progress-fill"
-                                                                style={{
-                                                                    width: `${(count / fileData.rowCount) * 100}%`,
-                                                                }}
-                                                            ></div>
-                                                        </div>
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        </div>
-                                    )}
-                                </div>
-                            )}
-                        </div>
-                    </div>
-                </div>
-            );
-        }
-
-        // Render App
-        ReactDOM.render(<App />, document.getElementById('root'));
-    </script>
+/* ═══ DRAG OVER ZONE FIX ═══ */
+document.addEventListener('dragover',e=>e.preventDefault());
+document.addEventListener('drop',e=>{
+  e.preventDefault();
+  if(document.getElementById('uploadZone').style.display!=='none'){
+    const f=e.dataTransfer.files[0]; if(f) processFile(f);
+  }
+});
+</script>
 </body>
 </html>
