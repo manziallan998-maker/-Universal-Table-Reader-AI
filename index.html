@@ -512,11 +512,25 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 
 /* ──────────────────────────────────────────────────────────────────
    SUPABASE CONFIG
-   Same project as before. Replace these two values to point the
-   importer at a different Supabase project.
+   SB_ANON below is the PUBLISHABLE "anon" key (decode its JWT payload
+   yourself: role:"anon"). It is *designed* to be embedded in browser
+   code and is safe on GitHub Pages — Supabase enforces what it can do
+   via Row Level Security (RLS) policies and function grants on the
+   database side, not by hiding this key.
+
+   NEVER put a service_role key here, in this file, in any other
+   client-side file, or anywhere a browser can read it. service_role
+   bypasses RLS entirely; if it leaks, anyone can read/write/drop any
+   table in the project. The only places a service_role key may ever
+   live are: a server-side environment variable (Edge Function /
+   backend), or nowhere at all if you only use the SECURITY DEFINER
+   RPC pattern below (recommended — see supabase_setup.sql).
+
+   Replace these two values to point the importer at a different
+   Supabase project.
 ────────────────────────────────────────────────────────────────── */
 const SB_URL  = 'https://uvispwigefzhjvkqcxkm.supabase.co';
-const SB_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV2aXNwd2lnZWZ6aGp2a3FjeGttIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA0OTIzNDYsImV4cCI6MjA5NjA2ODM0Nn0.wPN9uyEpKswUWcYZF1HPQZXCLSh5B0OheI1jBRgBEhA';
+const SB_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV2aXNwd2lnZWZ6aGp2a3FjeGttIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA0OTIzNDYsImV4cCI6MjA5NjA2ODM0Nn0.wPN9uyEpKswUWcYZF1HPQZXCLSh5B0OheI1jBRgBEhA'; // role:"anon" — confirmed safe for client-side use
 
 function sbHeaders(extra = {}) {
   return {
@@ -544,10 +558,15 @@ async function sbRpc(fn, params) {
 
 /* ──────────────────────────────────────────────────────────────────
    CONNECTION TEST
-   Hits the PostgREST root (proves the URL/key are valid) and probes
-   one of the import_engine RPCs (proves supabase_setup.sql has been
-   run). Both are required for full functionality; only the first is
-   required to import into a table that already has every column.
+   Hits a real table (public.ai_healthcheck, defined in
+   supabase_setup.sql) behind RLS instead of the bare /rest/v1/ root.
+   This proves: the URL/anon key pair is valid, AND PostgREST can
+   actually serve a SELECT under RLS with this key — which is a much
+   stronger signal than just getting a 200 from the API root. Then it
+   probes one of the import_engine RPCs (proves supabase_setup.sql has
+   been run). Both are required for full functionality; only the first
+   is required to import into a table that already has every column.
+   None of this ever touches a service_role-only endpoint.
 ────────────────────────────────────────────────────────────────── */
 let sbConnected = false;
 let rpcInstalled = null; // null = unknown, true/false once checked
@@ -558,16 +577,25 @@ async function pingSupabase(showToast = false) {
   badge.className = 'conn-badge';
   txt.textContent = 'Testing…';
   try {
-    const r = await fetch(`${SB_URL}/rest/v1/`, { headers: sbHeaders() });
+    const r = await fetch(`${SB_URL}/rest/v1/ai_healthcheck?select=id&limit=1`, { headers: sbHeaders() });
     if (!r.ok) {
       sbConnected = false;
       badge.className = 'conn-badge error';
-      txt.textContent = 'DB Error ' + r.status;
-      if (showToast) toast('❌ Could not reach Supabase (' + r.status + ')', 'err');
+      if (r.status === 404 || r.status === 406) {
+        txt.textContent = 'Setup needed';
+        if (showToast) toast('⚠ Connected, but public.ai_healthcheck doesn\'t exist yet — run supabase_setup.sql in the SQL Editor first.', 'err');
+      } else if (r.status === 401 || r.status === 403) {
+        txt.textContent = 'Auth Error';
+        if (showToast) toast('❌ Anon key rejected (' + r.status + '). Double-check SB_URL/SB_ANON and that ai_healthcheck has an anon SELECT policy.', 'err');
+      } else {
+        txt.textContent = 'DB Error ' + r.status;
+        if (showToast) toast('❌ Could not reach Supabase (' + r.status + ')', 'err');
+      }
       return false;
     }
     sbConnected = true;
-    // probe RPC presence with a harmless call
+    // probe RPC presence with a harmless call — these are SECURITY
+    // DEFINER functions from supabase_setup.sql, never service_role calls
     try {
       await sbRpc('import_engine_table_exists', { p_table: 'import_engine_probe_table' });
       rpcInstalled = true;
